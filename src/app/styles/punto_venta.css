@@ -1,0 +1,50 @@
+.contenedor {
+    min-height: 100vh;
+}
+
+.contenedor {
+    display: grid;
+    gap: 10px;
+    grid-template: 
+    "header" 56px
+    "sidebar" 100px
+    "main" auto / 100%
+    ;
+
+    .header {
+        grid-area: header;
+    }
+
+    .navbar {
+        grid-area: navbar;
+        display: none;
+    }
+    
+    .main {
+        grid-area: main;
+    }
+    
+    .sidebar {
+        grid-area: sidebar;
+        background-color: violet;
+    }
+
+    @media (min-width: 768px) {
+        grid-template: 
+        "header header" 64px
+        "main sidebar" auto / minmax(300px, 2fr) minmax(100, 1fr)
+        ;
+    }
+
+    @media (min-width: 992px) {
+        grid-template: 
+        "header header header" 64px
+        "navbar main sidebar" auto / minmax(200px, 1fr) 2fr minmax(200px, 1fr)
+        ;
+        .navbar {
+            display: block;
+        }
+    }
+
+    /* poner un punto de quiebre en 992px a dos columnas*/
+}

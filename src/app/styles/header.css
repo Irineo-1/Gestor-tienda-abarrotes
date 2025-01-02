@@ -1,0 +1,7 @@
+.show-movile {
+    display: inline-flex;
+
+    @media (min-width: 992px) {
+        display: none !important;
+    }
+}
