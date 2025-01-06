@@ -26,7 +26,6 @@
     
     .sidebar {
         grid-area: sidebar;
-        background-color: violet;
     }
 
     @media (min-width: 768px) {
