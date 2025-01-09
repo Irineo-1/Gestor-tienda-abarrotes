@@ -3,7 +3,7 @@ import { IDetallesCompra } from "../interfaces/IDetallesCompra";
 import { RootState } from "./store";
 
 const initialState: IDetallesCompra = {
-    precioTotal: 0,
+    precioTotal: 0.0,
     cantidadProductos: 0,
 }
 

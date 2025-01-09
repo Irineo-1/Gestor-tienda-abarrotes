@@ -1,5 +1,5 @@
 'use client'
-import { useState, Fragment } from 'react';
+import { useState, Fragment, useEffect } from 'react';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
@@ -14,20 +14,56 @@ import FormHelperText from '@mui/material/FormHelperText';
 import Paper from '@mui/material/Paper';
 import InputBase from '@mui/material/InputBase';
 import SearchIcon from '@mui/icons-material/Search';
-import { Producto } from '@/app/interfaces/producto';
+import { Producto, Producto_selected } from '@/app/interfaces/producto';
 import { setCantidadProductos, setPrecioTotal } from '@/app/redux/Compra';
 import { useAppDispatch } from '@/app/redux/hooks';
+import { getProductos } from '@/app/request/producto';
 
 export default function Productos() {
 
-  let [productos, setProductos] = useState<Producto[]>([{cantidad: 1, nombre: "Producto 1", typo: "contable", gramos: 0, precio: 50}, {cantidad: 1, nombre: "Producto 2", typo: "gramaje", gramos: 200, precio: 100}])
+  const [productosSelected, setProductosSelected] = useState<Producto_selected[]>([])
+  const [productos, setProductos] = useState<Producto[]>([])
+  const [search, setSearch] = useState<string>('')
   const dispatch = useAppDispatch()
 
-  dispatch(setCantidadProductos(productos.length))
-  dispatch(setPrecioTotal(productos.reduce((acc, every_item) => acc + every_item.precio * every_item.cantidad, 0)))
+  useEffect(() => {
 
-  function agregarCantidad(producto: Producto) {
-    setProductos((productos) => {
+    getProductos().then((res) => {
+      setProductos(res)
+    }).catch((err) => {
+      console.error(err)
+    })
+
+  }, [])
+
+  useEffect(() => {
+
+    dispatch(setPrecioTotal(parseFloat(productosSelected.reduce((acc, item) => {
+      let precionFinal = (item.typo == 'gramaje') ? (item.precio * item.gramos) / 1000 : item.precio * item.cantidad
+      return (acc + precionFinal)
+    }, 0).toFixed(2))))
+    
+    dispatch(setCantidadProductos(productosSelected.length))
+  }, [productosSelected])
+
+  function agregarProducto(producto: Producto) {
+    let porducto_seleccionado : Producto_selected = {
+      nombre: producto.nombre,
+      precio: producto.precio,
+      cantidad: 1,
+      gramos: 0,
+      typo: producto.typo
+    }
+
+    setSearch('')
+
+    setProductosSelected((productos) => {
+      return [...productos, porducto_seleccionado]
+    })
+  }
+
+  function agregarCantidad(producto: Producto_selected) {
+    setProductosSelected((productos) => {
       return productos.map((every_item) => {
         if(every_item.nombre === producto.nombre) {
           return {
@@ -37,12 +73,10 @@ export default function Productos() {
         return every_item
       })
     })
-
-    dispatch(setPrecioTotal(productos.reduce((acc, every_item) => acc + every_item.precio * every_item.cantidad, 0)))
   }
 
-  function quitarCantidad(producto: Producto) {
-    setProductos((productos) => {
+  function quitarCantidad(producto: Producto_selected) {
+    setProductosSelected((productos) => {
       return productos.map(every_item => {
         if(every_item.nombre === producto.nombre && every_item.cantidad > 1) {
           return {
@@ -53,19 +87,32 @@ export default function Productos() {
         return every_item
       })
     })
+  }
 
-    dispatch(setPrecioTotal(productos.reduce((acc, every_item) => acc + every_item.precio * every_item.cantidad, 0)))
+  function capturarGramos(valor_capturado: string, element: Producto_selected) {
+    
+    if(isNaN(parseInt(valor_capturado))) return
+
+    setProductosSelected(productos => {
+      return productos.map(producto => {
+        if(producto.nombre == element.nombre) {
+          return {
+            ...producto,
+            gramos: parseInt(valor_capturado)
+          }
+        }
+        return producto
+      })
+    })
   }
 
   function deleteProduct(nombre: string) {
-    setProductos((productos) => {
+    setProductosSelected((productos) => {
       return productos.filter(every_item => every_item.nombre !== nombre)
     })
-
-    dispatch(setCantidadProductos(productos.length))
   }
 
-  function escojerTypoCantidad(element: Producto) {
+  function escojerTypoCantidad(element: Producto_selected) {
     if(element.typo === "contable") {
       return (
         <Fragment>
@@ -84,7 +131,8 @@ export default function Productos() {
         <FormControl variant="standard" sx={{ m: 1, mt: 3, width: '12ch' }}>
           <Input
             id="standard-adornment-weight"
-            value={element.gramos}
+            type='number'
+            onChange={e => capturarGramos(e.target.value, element)}
             endAdornment={<InputAdornment position="end">Gm</InputAdornment>}
             aria-describedby="standard-weight-helper-text"
             inputProps={{
@@ -107,6 +155,8 @@ export default function Productos() {
       >
         <InputBase
           sx={{ ml: 1, flex: 1 }}
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
           placeholder="Buscar productos"
           inputProps={{ 'aria-label': 'search google maps' }}
         />
@@ -115,8 +165,23 @@ export default function Productos() {
         </IconButton>
       </Paper>
 
+      { search.trim() != '' ? 
+      
+        <div className='resultados-busqueda'>
+          {productos.filter((every_item) => every_item.nombre.toLowerCase().includes(search.toLowerCase())).map((every_item, id) => (
+
+            <div key={id} className='producto' onClick={() => agregarProducto(every_item)}>
+              <span className='text-lg font-bold mr-4'>{every_item.nombre}</span>
+              <span>(Precio: {every_item.precio}) {every_item.typo == 'gramaje' ? 'KG' : ''}</span>
+            </div>
+          ))}
+        </div>
+
+      : null }
+
+
       <List sx={{ bgcolor: 'background.paper' }}>
-        {(productos.length > 0) ? productos.map((every_item, id) => (
+        {(productosSelected.length > 0) ? productosSelected.map((every_item, id) => (
           <ListItem
             key={id}
             disableGutters

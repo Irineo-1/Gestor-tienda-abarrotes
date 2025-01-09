@@ -2,12 +2,31 @@
     min-height: 100vh;
 }
 
+.resultados-busqueda {
+    width: 790px;
+    max-height: 300px;
+    min-height: 100px;
+    border-radius: 15px;
+    padding: 10px;
+    animation: none;
+    overflow-y: scroll;
+    position: absolute;
+    z-index: 1;
+    background: white;
+}
+
+.producto {
+    padding: 10px;
+    border-bottom: 1px solid #4352;
+    cursor: pointer;
+}
+
 .contenedor {
     display: grid;
     gap: 10px;
     grid-template: 
     "header" 56px
-    "sidebar" 100px
+    "sidebar" 170px
     "main" auto / 100%
     ;
 

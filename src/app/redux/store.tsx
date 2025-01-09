@@ -1,10 +1,8 @@
 import { configureStore } from '@reduxjs/toolkit'
-import counterReduce from '@/app/redux/counterSlice'
 import cuentaReducer from './Compra'
 
 export const store = configureStore({
   reducer: {
-    counter: counterReduce,
     cuenta: cuentaReducer
   }
 })
