@@ -26,7 +26,6 @@
     gap: 10px;
     grid-template: 
     "header" 56px
-    "sidebar" 170px
     "main" auto / 100%
     ;
 
@@ -42,27 +41,43 @@
     .main {
         grid-area: main;
     }
-    
-    .sidebar {
-        grid-area: sidebar;
-    }
-
-    @media (min-width: 768px) {
-        grid-template: 
-        "header header" 64px
-        "main sidebar" auto / minmax(300px, 2fr) minmax(100, 1fr)
-        ;
-    }
 
     @media (min-width: 992px) {
         grid-template: 
         "header header header" 64px
-        "navbar main sidebar" auto / minmax(200px, 1fr) 2fr minmax(200px, 1fr)
+        "navbar main main" auto / minmax(200px, 1fr) 3fr 
         ;
         .navbar {
             display: block;
         }
     }
+}
 
-    /* poner un punto de quiebre en 992px a dos columnas*/
+.main-container {
+    display: grid;
+    grid-template: 
+    "productosC"
+    "detallesC"
+    ;
+
+    .productos-container {
+        grid-area: productosC;
+    }
+
+    .detalles-container {
+        grid-area: detallesC;
+        position: fixed;
+        bottom: 0px;
+        width: 100%;
+    }
+
+    @media (min-width: 992px) {
+        grid-template: 
+        "productosC detallesC" auto / 3fr minmax(260px, 1fr)
+        ;
+
+        .detalles-container {
+            position: relative;
+        }
+    }
 }

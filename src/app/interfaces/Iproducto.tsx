@@ -1,4 +1,4 @@
-export interface Producto {
+export interface IProducto {
     id: number
     nombre: string
     typo: string
@@ -7,7 +7,7 @@ export interface Producto {
     cantidad_contable: number
 }
 
-export interface Producto_selected {
+export interface IProducto_selected {
     nombre: string
     typo: string
     precio: number

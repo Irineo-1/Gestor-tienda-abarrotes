@@ -9,7 +9,7 @@ type SuccsessAlertProps = {
     setOpen: (open: boolean) => void
 }
 
-export default function ErrorAlert({mensage, open, setOpen} : SuccsessAlertProps) {
+export default function InfoAlert({mensage, open, setOpen} : SuccsessAlertProps) {
 
   const handleClose = (
     event?: React.SyntheticEvent | Event,

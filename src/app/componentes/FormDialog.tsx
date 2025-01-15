@@ -7,7 +7,6 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import ErrorAlert from '@/app/alets/Error';
-import SuccsessAlert from '@/app/alets/Success';
 
 type FormDialogProps = {
   open: boolean
@@ -20,7 +19,6 @@ export default function FormDialog({open, setOpen, precioTotal, getPago} : FormD
 
   const [pago, setPago] = useState(0);
   const [cambio, setCambio] = useState(0);
-  const [isOpenSuccessAlert, setIsOpenSuccessAlert] = useState(false)
   const [isOpenErrorAlert, setIsOpenErrorAlert] = useState(false)
   
   const handleClose = () => {
@@ -32,14 +30,12 @@ export default function FormDialog({open, setOpen, precioTotal, getPago} : FormD
     if(pago < precioTotal) return setIsOpenErrorAlert(true)
     getPago(pago)
     setPago(0)
-    setIsOpenSuccessAlert(true)
     handleClose()
   }
 
   const calcularCambio = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setPago(parseInt(e.target.value))
-    
-    console.log(e.target.value)
+
     if(e.target.value.trim() == '') return setCambio(0)
     if(parseInt(e.target.value) < precioTotal) return setCambio(0)
 
@@ -80,7 +76,6 @@ export default function FormDialog({open, setOpen, precioTotal, getPago} : FormD
       </Dialog>
 
       <ErrorAlert open={isOpenErrorAlert} mensage='El pago no puede ser menor al precio total' setOpen={setIsOpenErrorAlert}/>
-      <SuccsessAlert open={isOpenSuccessAlert} mensage='El pago se ha realizado con éxito' setOpen={setIsOpenSuccessAlert}/>
     </Fragment>
   );
 }

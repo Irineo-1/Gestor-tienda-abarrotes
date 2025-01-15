@@ -14,10 +14,11 @@ import FormHelperText from '@mui/material/FormHelperText';
 import Paper from '@mui/material/Paper';
 import InputBase from '@mui/material/InputBase';
 import SearchIcon from '@mui/icons-material/Search';
-import { Producto, Producto_selected } from '@/app/interfaces/producto';
+import { Producto, Producto_selected } from '@/app/interfaces/Iproducto';
 import { setCantidadProductos, setPrecioTotal } from '@/app/redux/Compra';
 import { useAppDispatch } from '@/app/redux/hooks';
 import { getProductos } from '@/app/request/producto';
+import DetallesCompra from '@/app/componentes/DetallesCompra';
 
 export default function Productos() {
 
@@ -146,59 +147,61 @@ export default function Productos() {
   }
 
   return (
+    <div className='main-container'>
+      <div className='productos-container'>
+        <Paper
+          component="form"
+          className='my-1'
+          sx={{ p: '2px 4px', display: 'flex', alignItems: 'center', width: "100%" }}
+        >
+          <InputBase
+            sx={{ ml: 1, flex: 1 }}
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Buscar productos"
+            inputProps={{ 'aria-label': 'search google maps' }}
+          />
+          <IconButton type="button" sx={{ p: '10px' }} aria-label="search">
+            <SearchIcon />
+          </IconButton>
+        </Paper>
 
-    <>
-      <Paper
-        component="form"
-        className='my-1'
-        sx={{ p: '2px 4px', display: 'flex', alignItems: 'center', width: "100%" }}
-      >
-        <InputBase
-          sx={{ ml: 1, flex: 1 }}
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="Buscar productos"
-          inputProps={{ 'aria-label': 'search google maps' }}
-        />
-        <IconButton type="button" sx={{ p: '10px' }} aria-label="search">
-          <SearchIcon />
-        </IconButton>
-      </Paper>
+        { search.trim() != '' ? 
+        
+          <div className='resultados-busqueda'>
+            {productos.filter((every_item) => every_item.nombre.toLowerCase().includes(search.toLowerCase())).map((every_item, id) => (
 
-      { search.trim() != '' ? 
-      
-        <div className='resultados-busqueda'>
-          {productos.filter((every_item) => every_item.nombre.toLowerCase().includes(search.toLowerCase())).map((every_item, id) => (
+              <div key={id} className='producto' onClick={() => agregarProducto(every_item)}>
+                <span className='text-lg font-bold mr-4'>{every_item.nombre}</span>
+                <span>(Precio: {every_item.precio}) {every_item.typo == 'gramaje' ? 'KG' : ''}</span>
+              </div>
+            ))}
+          </div>
 
-            <div key={id} className='producto' onClick={() => agregarProducto(every_item)}>
-              <span className='text-lg font-bold mr-4'>{every_item.nombre}</span>
-              <span>(Precio: {every_item.precio}) {every_item.typo == 'gramaje' ? 'KG' : ''}</span>
-            </div>
-          ))}
-        </div>
+        : null }
 
-      : null }
+        <List sx={{ bgcolor: 'background.paper' }}>
+          {(productosSelected.length > 0) ? productosSelected.map((every_item, id) => (
+            <ListItem
+              key={id}
+              disableGutters
+              secondaryAction={
+                <IconButton aria-label="delete" onClick={() => deleteProduct(every_item.nombre)}>
+                  <DeleteIcon />
+                </IconButton>
+              }
+            >
+              <ListItemText primary={`${every_item.nombre}  (${every_item.precio})`} />
 
+              {escojerTypoCantidad(every_item)}
 
-      <List sx={{ bgcolor: 'background.paper' }}>
-        {(productosSelected.length > 0) ? productosSelected.map((every_item, id) => (
-          <ListItem
-            key={id}
-            disableGutters
-            secondaryAction={
-              <IconButton aria-label="delete" onClick={() => deleteProduct(every_item.nombre)}>
-                <DeleteIcon />
-              </IconButton>
-            }
-          >
-            <ListItemText primary={`${every_item.nombre}  (${every_item.precio})`} />
-
-            {escojerTypoCantidad(every_item)}
-
-          </ListItem>
-        )) : []}
-      </List>
-
-    </>
+            </ListItem>
+          )) : []}
+        </List>
+      </div>
+      <div className='detalles-container'>
+        <DetallesCompra productosSelected={productosSelected} setProductosSelected={setProductosSelected} />
+      </div>
+    </div>
   );
 }

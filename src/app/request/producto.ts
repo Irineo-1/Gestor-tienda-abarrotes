@@ -1,7 +1,8 @@
-import { Producto } from '@/app/interfaces/producto';
+import { Producto } from '@/app/interfaces/Iproducto';
+import { env } from '../config';
 
 export const getProductos = async (): Promise<Producto[]> => {
-    const response: Response = await fetch('http://127.0.0.1:8000/productos')
+    const response: Response = await fetch(`${env.host}:${env.port}/productos`)
 
     if (!response.ok) throw new Error('Error al obtener los productos')
 
