@@ -14,7 +14,7 @@ import FormHelperText from '@mui/material/FormHelperText';
 import Paper from '@mui/material/Paper';
 import InputBase from '@mui/material/InputBase';
 import SearchIcon from '@mui/icons-material/Search';
-import { Producto, Producto_selected } from '@/app/interfaces/Iproducto';
+import { IProducto, IProducto_selected } from '@/app/interfaces/Iproducto';
 import { setCantidadProductos, setPrecioTotal } from '@/app/redux/Compra';
 import { useAppDispatch } from '@/app/redux/hooks';
 import { getProductos } from '@/app/request/producto';
@@ -22,8 +22,8 @@ import DetallesCompra from '@/app/componentes/DetallesCompra';
 
 export default function Productos() {
 
-  const [productosSelected, setProductosSelected] = useState<Producto_selected[]>([])
-  const [productos, setProductos] = useState<Producto[]>([])
+  const [productosSelected, setProductosSelected] = useState<IProducto_selected[]>([])
+  const [productos, setProductos] = useState<IProducto[]>([])
   const [search, setSearch] = useState<string>('')
   const dispatch = useAppDispatch()
 
@@ -47,8 +47,8 @@ export default function Productos() {
     dispatch(setCantidadProductos(productosSelected.length))
   }, [productosSelected])
 
-  function agregarProducto(producto: Producto) {
-    let porducto_seleccionado : Producto_selected = {
+  function agregarProducto(producto: IProducto) {
+    let porducto_seleccionado : IProducto_selected = {
       nombre: producto.nombre,
       precio: producto.precio,
       cantidad: 1,
@@ -63,7 +63,7 @@ export default function Productos() {
     })
   }
 
-  function agregarCantidad(producto: Producto_selected) {
+  function agregarCantidad(producto: IProducto_selected) {
     setProductosSelected((productos) => {
       return productos.map((every_item) => {
         if(every_item.nombre === producto.nombre) {
@@ -76,7 +76,7 @@ export default function Productos() {
     })
   }
 
-  function quitarCantidad(producto: Producto_selected) {
+  function quitarCantidad(producto: IProducto_selected) {
     setProductosSelected((productos) => {
       return productos.map(every_item => {
         if(every_item.nombre === producto.nombre && every_item.cantidad > 1) {
@@ -90,7 +90,7 @@ export default function Productos() {
     })
   }
 
-  function capturarGramos(valor_capturado: string, element: Producto_selected) {
+  function capturarGramos(valor_capturado: string, element: IProducto_selected) {
     
     if(isNaN(parseInt(valor_capturado))) return
 
@@ -113,7 +113,7 @@ export default function Productos() {
     })
   }
 
-  function escojerTypoCantidad(element: Producto_selected) {
+  function escojerTypoCantidad(element: IProducto_selected) {
     if(element.typo === "contable") {
       return (
         <Fragment>
