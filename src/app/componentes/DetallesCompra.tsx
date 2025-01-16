@@ -10,7 +10,7 @@ import { IProducto_selected } from '../interfaces/Iproducto';
 import WarningAlert from '@/app/alets/Warning';
 import ErrorAlert from '../alets/Error';
 import { addVenta } from '../request/Venta';
-import { IVenta } from '../interfaces/IVenta';
+import { ICurrent_venta } from '../interfaces/IVenta';
 import SuccsessAlert from '@/app/alets/Success';
 
 type paramProduct = {
@@ -30,7 +30,7 @@ export default function DetallesCompra({productosSelected, setProductosSelected}
   const dispatch = useAppDispatch()
 
   const getPago = (pago: number) => {
-    const venta: IVenta = {
+    const venta: ICurrent_venta = {
       productos: productosSelected,
       pago: pago
     }
