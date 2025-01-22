@@ -1,7 +1,7 @@
-import { IVenta, IVenta_gp_codigo } from "../interfaces/IVenta";
-import { env } from '../config';
+import { IVenta, IVenta_gp_codigo, ICurrent_venta } from "../interfaces/IVenta";
+import { env } from '@/app/config';
 
-export const addVenta = async (venta: IVenta): Promise<void> => {
+export const addVenta = async (venta: ICurrent_venta): Promise<void> => {
 
     const response: Response = await fetch(`${env.host}:${env.port}/venta`, {
         headers: {

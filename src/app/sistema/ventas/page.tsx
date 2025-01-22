@@ -15,8 +15,8 @@ import Paper from '@mui/material/Paper';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import TextField from '@mui/material/TextField';
-import { IVenta, IVenta_gp_codigo } from '../interfaces/IVenta';
-import { getVentas } from '@/app/request/Venta'
+import { IVenta, IVenta_gp_codigo } from '@/interfaces/IVenta';
+import { getVentas } from '@/request/Venta'
 
 
 function Row({ventas}: {ventas: IVenta_gp_codigo}) {

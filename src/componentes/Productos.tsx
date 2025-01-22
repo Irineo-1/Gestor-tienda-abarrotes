@@ -14,11 +14,11 @@ import FormHelperText from '@mui/material/FormHelperText';
 import Paper from '@mui/material/Paper';
 import InputBase from '@mui/material/InputBase';
 import SearchIcon from '@mui/icons-material/Search';
-import { IProducto, IProducto_selected } from '@/app/interfaces/Iproducto';
-import { setCantidadProductos, setPrecioTotal } from '@/app/redux/Compra';
-import { useAppDispatch } from '@/app/redux/hooks';
-import { getProductos } from '@/app/request/producto';
-import DetallesCompra from '@/app/componentes/DetallesCompra';
+import { IProducto, IProducto_selected } from '@/interfaces/Iproducto';
+import { setCantidadProductos, setPrecioTotal } from '@/redux/Compra';
+import { useAppDispatch } from '@/redux/hooks';
+import { getProductos } from '@/request/producto';
+import DetallesCompra from '@/componentes/DetallesCompra';
 
 export default function Productos() {
 

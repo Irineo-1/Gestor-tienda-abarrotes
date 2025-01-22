@@ -1,17 +1,17 @@
 'use client'
 
-import { useAppSelector } from '@/app/redux/hooks'
+import { useAppSelector } from '@/redux/hooks'
 import { useState } from 'react';
 import FormDialog from './FormDialog';
 import Button from '@mui/material/Button';
-import { setCantidadProductos, setPrecioTotal } from '@/app/redux/Compra';
-import { useAppDispatch } from '@/app/redux/hooks';
+import { setCantidadProductos, setPrecioTotal } from '@/redux/Compra';
+import { useAppDispatch } from '@/redux/hooks';
 import { IProducto_selected } from '../interfaces/Iproducto';
-import WarningAlert from '@/app/alets/Warning';
+import WarningAlert from '@/alets/Warning';
 import ErrorAlert from '../alets/Error';
 import { addVenta } from '../request/Venta';
 import { ICurrent_venta } from '../interfaces/IVenta';
-import SuccsessAlert from '@/app/alets/Success';
+import SuccsessAlert from '@/alets/Success';
 
 type paramProduct = {
   productosSelected: IProducto_selected[]
