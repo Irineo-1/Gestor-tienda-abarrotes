@@ -5,6 +5,7 @@ export interface IProducto {
     precio: number
     gramaje: number
     cantidad_contable: number
+    codigo_barras: string
 }
 
 export interface IProducto_selected {

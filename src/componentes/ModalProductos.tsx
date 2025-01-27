@@ -8,9 +8,10 @@ interface MyComponentProps {
   setOpen: (Open: boolean) => void
   children: React.ReactNode
   handleAgregar: () => void
+  textAction: string
 }
 
-export default function ModalProductos({open, setOpen, children, handleAgregar}: MyComponentProps) {
+export default function ModalProductos({open, setOpen, children, handleAgregar, textAction}: MyComponentProps) {
 
   const handleClose = () => {
     setOpen(false);
@@ -26,7 +27,7 @@ export default function ModalProductos({open, setOpen, children, handleAgregar}:
         {children}
         <DialogActions>
           <Button onClick={handleClose}>Cancelar</Button>
-          <Button type="button" onClick={() => handleAgregar()}>Agregar</Button>
+          <Button type="button" onClick={() => handleAgregar()}>{textAction}</Button>
         </DialogActions>
       </Dialog>
     </React.Fragment>
