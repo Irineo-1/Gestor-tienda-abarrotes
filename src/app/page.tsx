@@ -1,6 +1,6 @@
 'use client'
 
-// import { useRouter } from 'next/navigation'
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import TextField from '@mui/material/TextField';
 import InputAdornment from '@mui/material/InputAdornment';
@@ -12,16 +12,18 @@ import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import { Autenticacion } from '@/request/Autenticacion';
 import CircularProgress from "@mui/material/CircularProgress";
+import ErrorAlert from '@/alets/Error';
 
 import "../styles/login.css"
 
 export default function Home() {
 
-  // const router = useRouter()
+  const router = useRouter()
   const [showPassword, setShowPassword] = useState(false)
   const [usuario, setUsuario] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
+  const [errorOpen, setErrorOpen] = useState(false)
 
 
   const handleClickShowPassword = () => setShowPassword((show) => !show)
@@ -35,15 +37,14 @@ export default function Home() {
     setLoading(true)
     
     Autenticacion(usuario, password)
-    .then((token) => {
-
+    .then(() => {
       setLoading(false)
-      localStorage.setItem("tk", token)
-    
+      router.push("/sistema/punto_venta")
     })
-    .catch(() => {
+    .catch((err) => {
+      console.log(err)
       setLoading(false)
-      // Alerta
+      setErrorOpen(true)
     })
   }
 
@@ -103,6 +104,8 @@ export default function Home() {
           {loading ? <CircularProgress size={24} color="inherit" /> : "Iniciar sesión"}
         </Button>
       </form>
+
+      <ErrorAlert mensage='Nombre o contraseña incorrectas' open={errorOpen} setOpen={setErrorOpen}/>
     </div>
   );
 }

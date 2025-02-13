@@ -1,6 +1,6 @@
 'use client'
 
-import * as React from 'react'
+import { useState, Fragment } from 'react'
 import AppBar from '@mui/material/AppBar'
 import Box from '@mui/material/Box'
 import Toolbar from '@mui/material/Toolbar'
@@ -9,15 +9,31 @@ import Button from '@mui/material/Button'
 import IconButton from '@mui/material/IconButton'
 import MenuIcon from '@mui/icons-material/Menu'
 import SwipeableDrawer from '@mui/material/SwipeableDrawer'
-import '@/styles/header.css'
 import Navbar from '@/componentes/Navbar'
+import { cerrarSesion } from '@/request/Autenticacion'
+import { useRouter } from 'next/navigation'
+import ModalProductos from './ModalProductos'
+import '@/styles/header.css'
+import { DialogTitle } from '@mui/material'
 
 export default function Header() {
 
-  const [state, setState] = React.useState(false)
+  const [state, setState] = useState(false)
+  const [openModal, setOpenModal] = useState(false)
+  const router = useRouter()
 
   const toggleDrawer = (open: boolean) => {
     setState(open);
+  }
+
+  const modalValidator = () => {
+    setOpenModal(true)
+  }
+
+  const cerrar = () => {
+    cerrarSesion().then(() => {
+      router.push("/")
+    })
   }
 
   return (
@@ -38,11 +54,11 @@ export default function Header() {
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
             Tienda
           </Typography>
-          <Button color="inherit">Cerrar sesion</Button>
+          <Button color="inherit" onClick={modalValidator}>Cerrar sesion</Button>
         </Toolbar>
       </AppBar>
 
-      <React.Fragment>
+      <Fragment>
         <SwipeableDrawer
           anchor='bottom'
           open={state}
@@ -59,7 +75,11 @@ export default function Header() {
             <Navbar />
           </Box>
         </SwipeableDrawer>
-      </React.Fragment>
+      </Fragment>
+
+      <ModalProductos open={openModal} setOpen={setOpenModal} textAction='Aceptar' handleAgregar={cerrar} >
+        <DialogTitle>¿Desea cerrar sesion?</DialogTitle>
+      </ModalProductos>
     </Box>
   );
 }
