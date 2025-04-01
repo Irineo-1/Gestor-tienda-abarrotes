@@ -21,7 +21,7 @@ export const Autenticacion = async (usuario: string, password: string): Promise<
         name: 'tk',
         value: token.Token,
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'development',
+        secure: process.env.NODE_ENV !== 'development',
         sameSite: 'strict',
         maxAge: 60 * 60 * 15,
         path: '/' 

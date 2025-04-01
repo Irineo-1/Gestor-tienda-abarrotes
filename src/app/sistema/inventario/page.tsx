@@ -17,6 +17,9 @@ import SuccsessAlert from '@/alets/Success';
 import ErrorAlert from '@/alets/Error';
 import Tabla from '@/componentes/Tabla';
 import { HeadersTabla } from '@/interfaces/Tabla';
+import QrCodeScanner from '@mui/icons-material/QrCodeScanner';
+import { IconButton } from '@mui/material';
+import LectorBarras from '@/componentes/LectorBarras';
 
 export default function Inventario() {
 
@@ -24,6 +27,7 @@ export default function Inventario() {
     const [open, setOpen] = useState<boolean>(false)
     const [openEdit, setOpenEdit] = useState<boolean>(false)
     const [openConfirmacionEliminar, setOpenConfirmacionEliminar] = useState<boolean>(false)
+    const [isOpenModalLector, setIsOpenModalLector] = useState(false)
 
     const [successOpen, setSuccessOpen] = useState<boolean>(false)
     const [successMessage, setSuccessMessage] = useState<string>("")
@@ -181,6 +185,10 @@ export default function Inventario() {
         setOpenConfirmacionEliminar(true)
     }
 
+    const getCodigoBarras = (codigo: string) => {
+        setCodigoBarras(codigo)
+    }
+
     useEffect(() => {
         getProductos().then((data) => {
             setProductos(data)
@@ -204,16 +212,21 @@ export default function Inventario() {
 
             <DialogTitle>Agregar producto</DialogTitle>
             <DialogContent>
-                <TextField
-                    required
-                    margin="dense"
-                    label="Codigo de barras"
-                    type="text"
-                    value={codigoBarras}
-                    onChange={e => setCodigoBarras(e.target.value)}
-                    fullWidth
-                    variant="standard"
-                />
+                <div className='flex items-center'>                    
+                    <TextField
+                        required
+                        margin="dense"
+                        label="Codigo de barras"
+                        type="text"
+                        value={codigoBarras}
+                        onChange={e => setCodigoBarras(e.target.value)}
+                        fullWidth
+                        variant="standard"
+                    />
+                    <IconButton onClick={() => setIsOpenModalLector(true)}>
+                        <QrCodeScanner />
+                    </IconButton>
+                </div>
                 <TextField
                     autoFocus
                     required
@@ -343,6 +356,8 @@ export default function Inventario() {
         <ModalProductos open={openConfirmacionEliminar} handleAgregar={eliminar} setOpen={setOpenConfirmacionEliminar} textAction='Aceptar'>
             <DialogTitle>¿Desea eliminar {toDelete?.nombre}?</DialogTitle>
         </ModalProductos>
+
+        <LectorBarras open={isOpenModalLector} setOpen={setIsOpenModalLector} getCode={getCodigoBarras}/>
 
         <SuccsessAlert mensage={successMessage} open={successOpen} setOpen={setSuccessOpen} />
         <ErrorAlert mensage={errorMessage} open={errorOpen} setOpen={setErrorOpen} />

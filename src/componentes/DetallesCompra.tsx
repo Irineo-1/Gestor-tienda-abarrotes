@@ -1,8 +1,8 @@
 'use client'
 
 import { useAppSelector } from '@/redux/hooks'
-import { useState } from 'react';
-import FormDialog from './FormDialog';
+import { useState, ChangeEvent } from 'react';
+import Modal from './Modal';
 import Button from '@mui/material/Button';
 import { setCantidadProductos, setPrecioTotal } from '@/redux/Compra';
 import { useAppDispatch } from '@/redux/hooks';
@@ -12,6 +12,8 @@ import ErrorAlert from '../alets/Error';
 import { addVenta } from '../request/Venta';
 import { ICurrent_venta } from '../interfaces/IVenta';
 import SuccsessAlert from '@/alets/Success';
+import TextField from '@mui/material/TextField';
+
 
 type paramProduct = {
   productosSelected: IProducto_selected[]
@@ -25,6 +27,9 @@ export default function DetallesCompra({productosSelected, setProductosSelected}
   const [isOpenErrorAlert, setIsOpenErrorAlert] = useState(false)
   const [isOpenSuccessAlert, setIsOpenSuccessAlert] = useState(false)
 
+  const [pago, setPago] = useState(0);
+  const [cambio, setCambio] = useState(0);
+
   const cantidadProductos = useAppSelector(state => state.cuenta.cantidadProductos)
   const precioTotal = useAppSelector(state => state.cuenta.precioTotal)
   const dispatch = useAppDispatch()
@@ -34,6 +39,8 @@ export default function DetallesCompra({productosSelected, setProductosSelected}
       productos: productosSelected,
       pago: pago
     }
+
+    console.log(venta)
 
     addVenta(venta)
     .then(() => {
@@ -45,6 +52,23 @@ export default function DetallesCompra({productosSelected, setProductosSelected}
     .catch(() => {
       setIsOpenErrorAlert(true)
     })
+  }
+
+  const handlePago = () => {
+
+    if(pago < precioTotal) return setIsOpenErrorAlert(true)
+    getPago(pago)
+    setPago(0)
+    setIsOpenForm(false)
+  }
+
+  const calcularCambio = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setPago(parseInt(e.target.value))
+
+    if(e.target.value.trim() == '') return setCambio(0)
+    if(parseInt(e.target.value) < precioTotal) return setCambio(0)
+
+    setCambio(parseInt(e.target.value) - precioTotal)
   }
 
   const haveProducts = () => {
@@ -62,7 +86,26 @@ export default function DetallesCompra({productosSelected, setProductosSelected}
           Pagar
         </Button>
 
-        <FormDialog precioTotal={precioTotal} open={isOpenForm} setOpen={setIsOpenForm} getPago={getPago}/>
+        <Modal open={isOpenForm} setOpen={setIsOpenForm} titulo={`Total a pagar: ${precioTotal}`} textoBotonConfirmar='Pagar' handleConfirmar={handlePago}>
+
+            <span className='mb-4 block'>Cambio a dar: <strong>{cambio}</strong></span>
+
+            <TextField
+              autoFocus
+              required
+              margin="dense"
+              id="pago"
+              name="pago"
+              label="Pago con: "
+              type="number"
+              value={pago}
+              onChange={(e) => calcularCambio(e)}
+              fullWidth
+              variant="standard"
+            />
+
+        </Modal>
+
         <WarningAlert open={isOpenWarningAlert} mensage='Agregar productos primero' setOpen={setIsOpenWarningAlert}/>
         <ErrorAlert open={isOpenErrorAlert} mensage='No se pudo hacer el cobro, intenta mas tarde' setOpen={setIsOpenErrorAlert}/>
         <SuccsessAlert open={isOpenSuccessAlert} mensage='El pago se ha realizado con éxito' setOpen={setIsOpenSuccessAlert}/>
