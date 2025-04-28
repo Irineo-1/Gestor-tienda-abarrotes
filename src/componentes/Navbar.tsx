@@ -11,7 +11,7 @@ export default function Navbar() {
                     <li className='every-item'><Link href="/sistema/punto_venta">Caja</Link></li>
                     <li className='every-item'><Link href="/sistema/ventas">Ventas</Link></li>
                     <li className='every-item'><Link href="/sistema/inventario">Inventario</Link></li>
-                    <li className='every-item'><Link href="/sistema/gestor_usuario">Gestion de usuarios</Link></li>
+                    <li className='every-item'><Link href="/sistema/gestor_usuarios">Gestion de usuarios</Link></li>
                 </ul>
             </nav>
         
