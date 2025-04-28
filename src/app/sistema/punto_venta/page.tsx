@@ -51,6 +51,11 @@ export default function Punto_venta() {
   }, [productosSelected])
 
   const agregarProducto = (producto: IProducto) => {
+
+    // valida si ya exite ese elemento
+    const foundValue = productosSelected.find(el => el.nombre == producto.nombre)
+    if(foundValue) return
+
     let porducto_seleccionado : IProducto_selected = {
       nombre: producto.nombre,
       precio: producto.precio,
