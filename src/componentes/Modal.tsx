@@ -42,7 +42,7 @@ export default function Modal({open, setOpen, children, titulo, textoBotonConfir
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose}>Cerrar</Button>
-          {textoBotonConfirmar?.trim() != '' &&
+          {textoBotonConfirmar != undefined &&
             <Button onClick={handleConfirmar}>
               {textoBotonConfirmar}
             </Button>
