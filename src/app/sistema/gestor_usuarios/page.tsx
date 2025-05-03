@@ -4,8 +4,8 @@ import { useEffect, useState } from 'react';
 import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemText from '@mui/material/ListItemText';
-import { getUsuarios } from '@/request/usuarios';
-import { Usuario } from '@/interfaces/Usuario';
+import { getTiposUsuarios, getUsuarios, addNuevoUsuario } from '@/request/usuarios';
+import { TipoUsuario, Usuario } from '@/interfaces/Usuario';
 import Button from '@mui/material/Button';
 import { PersonAdd } from '@mui/icons-material';
 import TextField from '@mui/material/TextField';
@@ -19,10 +19,17 @@ export default function GestorUsuarios() {
 
     const [usuarios, setUsuarios] = useState<Usuario[]>([])
     const [usuario, setUsuario] = useState<Usuario>()
+    const [nuevoUsuario, setNuevoUsuario] = useState<Usuario>({} as Usuario)
+    const [tiposUsuario, setTiposUsuario] = useState<TipoUsuario[]>()
 
     const [openAddUsers, setOpenAddUsers] = useState(false)
 
     useEffect(() => {
+
+        getTiposUsuarios().then(tipos => {
+            setTiposUsuario(tipos)
+        })
+
         getUsuarios().then(data => {
             setUsuarios(data)
         })
@@ -39,6 +46,27 @@ export default function GestorUsuarios() {
                 [toChange]: name
             }
         })
+    }
+
+    const changeNuevoUsuario = (name: string, toChange: keyof Usuario) => {
+
+        setNuevoUsuario(user => {
+            return {
+                ...user,
+                [toChange]: name
+            }
+        })
+    }
+
+    const addUsuario = () => {
+        addNuevoUsuario(nuevoUsuario)
+
+        setUsuarios(users => {
+            return [...users, {...nuevoUsuario, typo: tiposUsuario?.find(el => el.id == parseInt(nuevoUsuario.typo))?.typo || ''}]
+        })
+
+        setOpenAddUsers(false)
+        setNuevoUsuario({} as Usuario)
     }
 
     return (
@@ -93,7 +121,7 @@ export default function GestorUsuarios() {
                 }
             </div>
 
-            <Modal titulo='Agregar personal' open={openAddUsers} setOpen={setOpenAddUsers} textoBotonConfirmar='Agregar'>
+            <Modal titulo='Agregar personal' open={openAddUsers} setOpen={setOpenAddUsers} textoBotonConfirmar='Agregar' handleConfirmar={addUsuario}>
                 <>
                     <TextField 
                         id="usuario-add" 
@@ -101,8 +129,8 @@ export default function GestorUsuarios() {
                         variant="standard" 
                         size="small" 
                         fullWidth 
-                        value={usuario?.usuario ?? ""} 
-                        onChange={e => changeUser(e.target.value, 'usuario')}
+                        value={nuevoUsuario?.usuario ?? ""} 
+                        onChange={e => changeNuevoUsuario(e.target.value, 'usuario')}
                     />
                     <FormControl fullWidth variant="standard">
                         <InputLabel id="nivel-trabajador">Typo de producto</InputLabel>
@@ -110,9 +138,12 @@ export default function GestorUsuarios() {
                             labelId="nivel-trabajador"
                             id="nivel-trabajador-select"
                             label="Typo de producto"
+                            value={nuevoUsuario?.typo ?? ''}
+                            onChange={e => changeNuevoUsuario(e.target.value, 'typo')}
                         >
-                            <MenuItem value={1}>Contable</MenuItem>
-                            <MenuItem value={2}>Gramaje</MenuItem>
+                            {tiposUsuario?.map(tipo => (
+                                <MenuItem key={tipo.id} value={tipo.id}>{tipo.typo}</MenuItem>
+                            ))}
                         </Select>
                     </FormControl>
                     <TextField 
@@ -121,8 +152,8 @@ export default function GestorUsuarios() {
                         variant="standard" 
                         size="small" 
                         fullWidth 
-                        value={usuario?.password ?? ""}
-                        onChange={e => changeUser(e.target.value, 'password')}
+                        value={nuevoUsuario?.password ?? ""}
+                        onChange={e => changeNuevoUsuario(e.target.value, 'password')}
                     />
                 </>
             </Modal>

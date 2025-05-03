@@ -4,3 +4,8 @@ export interface Usuario {
     typo: string
     password?: string
 }
+
+export interface TipoUsuario {
+    id: number
+    typo: string
+}
