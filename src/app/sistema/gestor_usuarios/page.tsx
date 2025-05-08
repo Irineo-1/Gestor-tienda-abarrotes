@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemText from '@mui/material/ListItemText';
-import { getTiposUsuarios, getUsuarios, addNuevoUsuario } from '@/request/usuarios';
+import { getTiposUsuarios, getUsuarios, addUsuario, updateUsuario, deleteUsuario } from '@/request/usuarios';
 import { TipoUsuario, Usuario } from '@/interfaces/Usuario';
 import Button from '@mui/material/Button';
 import { PersonAdd } from '@mui/icons-material';
@@ -23,6 +23,8 @@ export default function GestorUsuarios() {
     const [tiposUsuario, setTiposUsuario] = useState<TipoUsuario[]>()
 
     const [openAddUsers, setOpenAddUsers] = useState(false)
+    const [openDeleteUsers, setOpenDeleteUsers] = useState(false)
+    const [openUpdateUsers, setOpenUpdateUsers] = useState(false)
 
     useEffect(() => {
 
@@ -58,15 +60,52 @@ export default function GestorUsuarios() {
         })
     }
 
-    const addUsuario = () => {
-        addNuevoUsuario(nuevoUsuario)
-
-        setUsuarios(users => {
-            return [...users, {...nuevoUsuario, typo: tiposUsuario?.find(el => el.id == parseInt(nuevoUsuario.typo))?.typo || ''}]
+    const handleAddUsuario = () => {
+        addUsuario(nuevoUsuario).then(registro => {
+            nuevoUsuario.id = registro.id
+            setUsuarios(users => {
+                return [...users, {...nuevoUsuario, typo: tiposUsuario?.find(el => el.id == parseInt(nuevoUsuario.typo))?.typo || ''}]
+            })
         })
 
         setOpenAddUsers(false)
         setNuevoUsuario({} as Usuario)
+    }
+
+    const handleDeleteUsuario = () => {
+
+        if(!usuario || !usuario.id) return
+
+        deleteUsuario(usuario.id).then(() => {
+            setUsuarios(usuarios.filter(user => user.id != usuario.id))
+        })
+        
+        setOpenDeleteUsers(false)
+        setUsuario(undefined)
+    }
+
+    const handleUpdateUsuario = () => {
+
+        if(!usuario) return
+
+        updateUsuario(usuario).then(() => {
+
+            setUsuarios((users) => {
+                return users.map(user => {
+                    if(user.id == usuario?.id) {
+                        return {
+                            ...user,
+                            usuario: usuario?.usuario
+                        }
+                    }
+                    return user
+                })
+            })
+    
+            setUsuario(undefined)
+        })
+        
+        setOpenUpdateUsers(false)
     }
 
     return (
@@ -99,7 +138,7 @@ export default function GestorUsuarios() {
                                         size="small" 
                                         fullWidth 
                                         value={usuario?.usuario ?? ""} 
-                                        onChange={e => changeUser(e.target.value, 'usuario')}
+                                        onChange={e => changeUser(e.target.value.trim().toUpperCase(), 'usuario')}
                                     />
                                     <TextField 
                                         id="password" 
@@ -112,8 +151,8 @@ export default function GestorUsuarios() {
                                     />
                                 </div>
                                 <div className='w-full flex justify-between'>
-                                    <Button variant="contained" color="success" size="small">Actualizar</Button>
-                                    <Button variant="contained" color='error' size="small">Eliminar</Button>
+                                    <Button variant="contained" color="success" size="small" onClick={() => setOpenUpdateUsers(true)}>Actualizar</Button>
+                                    <Button variant="contained" color='error' size="small" onClick={() => setOpenDeleteUsers(true)}>Eliminar</Button>
                                 </div>
                             </div>
                         
@@ -121,7 +160,7 @@ export default function GestorUsuarios() {
                 }
             </div>
 
-            <Modal titulo='Agregar personal' open={openAddUsers} setOpen={setOpenAddUsers} textoBotonConfirmar='Agregar' handleConfirmar={addUsuario}>
+            <Modal titulo='Agregar personal' open={openAddUsers} setOpen={setOpenAddUsers} textoBotonConfirmar='Agregar' handleConfirmar={handleAddUsuario}>
                 <>
                     <TextField 
                         id="usuario-add" 
@@ -130,7 +169,7 @@ export default function GestorUsuarios() {
                         size="small" 
                         fullWidth 
                         value={nuevoUsuario?.usuario ?? ""} 
-                        onChange={e => changeNuevoUsuario(e.target.value, 'usuario')}
+                        onChange={e => changeNuevoUsuario(e.target.value.trim().toUpperCase(), 'usuario')}
                     />
                     <FormControl fullWidth variant="standard">
                         <InputLabel id="nivel-trabajador">Typo de producto</InputLabel>
@@ -155,6 +194,18 @@ export default function GestorUsuarios() {
                         value={nuevoUsuario?.password ?? ""}
                         onChange={e => changeNuevoUsuario(e.target.value, 'password')}
                     />
+                </>
+            </Modal>
+
+            <Modal titulo={`Eliminar a ${usuario?.usuario}`} open={openDeleteUsers} setOpen={setOpenDeleteUsers} textoBotonConfirmar='Eliminar' handleConfirmar={handleDeleteUsuario}>
+                <>
+                    <p>Una ves eliminado se perdera el {usuario?.typo} permanentemente</p>
+                </>
+            </Modal>
+
+            <Modal titulo={`Actualizar ${usuario?.usuario}`} open={openUpdateUsers} setOpen={setOpenUpdateUsers} textoBotonConfirmar='Actualizar' handleConfirmar={handleUpdateUsuario}>
+                <>
+                    <p>¿Desea actualizar al {usuario?.typo}?</p>
                 </>
             </Modal>
         </>

@@ -37,7 +37,7 @@ export const getTiposUsuarios = async (): Promise<TipoUsuario[]> => {
 
 }
 
-export const addNuevoUsuario = async (usuario: Usuario) => {
+export const addUsuario = async (usuario: Usuario): Promise<{id: number}> => {
     const token = (await cookies()).get('tk')?.value
 
     const response: Response = await fetch(`${env.host}:${env.port}/usuario/`, {
@@ -50,5 +50,37 @@ export const addNuevoUsuario = async (usuario: Usuario) => {
     })
 
     if (!response.ok) throw new Error('Error al insertar usuario')
+    
+    const idRegistro: {id: number} = await response.json()
 
+    return idRegistro
+}
+
+export const updateUsuario = async (usuario: Usuario) => {
+    const token = (await cookies()).get('tk')?.value
+
+    const response: Response = await fetch(`${env.host}:${env.port}/usuario/`, {
+        headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`
+        },
+        method: "PUT",
+        body: JSON.stringify(usuario)
+    })
+
+    if (!response.ok) throw new Error('Error al insertar usuario')
+}
+
+export const deleteUsuario = async (id: number) => {
+    const token = (await cookies()).get('tk')?.value
+
+    const response: Response = await fetch(`${env.host}:${env.port}/usuario/${id}`, {
+        headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`
+        },
+        method: "DELETE",
+    })
+
+    if (!response.ok) throw new Error('Error al insertar usuario')
 }
