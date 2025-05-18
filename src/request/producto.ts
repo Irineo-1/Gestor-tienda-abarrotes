@@ -22,6 +22,8 @@ export const getProductos = async (): Promise<IProducto[]> => {
 
 export const addProductos = async (data: IProducto): Promise<{id: number}> => {
 
+    console.log({data})
+
     const token = (await cookies()).get('tk')?.value
 
     const response: Response = await fetch(`${env.host}:${env.port}/productos`, {

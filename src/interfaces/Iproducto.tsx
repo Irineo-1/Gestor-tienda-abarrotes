@@ -1,7 +1,7 @@
 export interface IProducto {
     id: number
     nombre: string
-    typo: string
+    typo: number
     precio: number
     gramaje: number
     cantidad_contable: number
@@ -10,7 +10,7 @@ export interface IProducto {
 
 export interface IProducto_selected {
     nombre: string
-    typo: string
+    typo: number
     precio: number
     gramos: number
     cantidad: number

@@ -42,8 +42,8 @@ export default function Inventario() {
     const [cantidad, setCantidad] = useState<number>(0)
     const [cantidadAgg, setCantidadAgg] = useState<number>(0)
     const [id, setId] = useState<number>(0)
-    const [typo, setTypo] = useState<string>('')
-    const [typoAgregar, setTypoAgregar] = useState<string>('')
+    const [typoEditar, setTypoEditar] = useState<number>(0)
+    const [typoAgregar, setTypoAgregar] = useState<number>(0)
     const [toDelete, setToDelete] = useState<{id: number, nombre: string}>()
 
     const headersTablaTest: HeadersTabla<IProducto>[] = [
@@ -74,7 +74,7 @@ export default function Inventario() {
             cantidad_contable: cantidad,
             typo: typoAgregar,
             codigo_barras: codigoBarras,
-            id: 0 // Este id es temporal. Una vez insertado el registro se remplaza en el then de addProductos
+            id: 0 // Este id es temporal. Una vez insertado el registro se remplaza en el then de addProductos 🆔
         }
 
         const validate = [nombre.trim(), precio, gramaje, cantidad, typoAgregar, codigoBarras.trim()]
@@ -87,8 +87,8 @@ export default function Inventario() {
         addProductos(producto).then((data) => {
             setSuccessMessage('Producto agregado exitosamente')
             setSuccessOpen(true)
-
-            producto.id = data.id
+ 
+            producto.id = data.id // Se modifica el id para poder editar y eliminar 🆔
 
             setProductos(productos => {
                 return [...productos, producto]
@@ -115,7 +115,7 @@ export default function Inventario() {
             precio: precio,
             gramaje: gramaje + gramajeAgg,
             cantidad_contable: cantidad + cantidadAgg,
-            typo: typo, // No utilizado
+            typo: 0, // No utilizado
             codigo_barras: codigoBarras, // No utilizado
             id: id
         }
@@ -164,7 +164,7 @@ export default function Inventario() {
         setGramje(producto.gramaje)
         setCantidad(producto.cantidad_contable)
         setId(producto.id)
-        setTypo(producto.typo)
+        setTypoEditar(producto.typo)
         setOpenEdit(true)
     }
 
@@ -175,8 +175,8 @@ export default function Inventario() {
         setGramje(0)
         setCantidad(0)
         setId(0)
-        setTypo('')
-        setTypoAgregar('')
+        setTypoEditar(0)
+        setTypoAgregar(0)
         setOpen(true)
     }
 
@@ -255,13 +255,13 @@ export default function Inventario() {
                         id="demo-simple-select"
                         label="Typo de producto"
                         value={typoAgregar}
-                        onChange={e => setTypoAgregar(e.target.value)}
+                        onChange={e => setTypoAgregar(parseInt(e.target.value.toString()))}
                     >
                         <MenuItem value={1}>Contable</MenuItem>
                         <MenuItem value={2}>Gramaje</MenuItem>
                     </Select>
                 </FormControl>
-                {typoAgregar == '2' ? 
+                {typoAgregar == 2 ? 
                     
                     <TextField
                         margin="dense"
@@ -273,7 +273,7 @@ export default function Inventario() {
                         variant="standard"
                     />
                 
-                : (typoAgregar == '1') ?
+                : (typoAgregar == 1) ?
             
                     <TextField
                         margin="dense"
@@ -318,22 +318,7 @@ export default function Inventario() {
                     variant="standard"
                 />
 
-                {typo == "gramaje" ? 
-                
-                    <div className='flex items-end'>
-                        <span>Cantidad actual: {gramaje}</span>
-                        <TextField
-                            margin="dense"
-                            label="Gramaje producto"
-                            type="number"
-                            fullWidth
-                            variant="standard"
-                            value={gramajeAgg}
-                            onChange={e => setGramjeAgg(parseFloat(e.target.value))}
-                        />
-                    </div>
-                
-                : 
+                {typoEditar == 1 ? // contable
                 
                     <div className='flex items-end'>
                         <span>Cantidad actual: {cantidad}</span>
@@ -345,6 +330,21 @@ export default function Inventario() {
                             variant="standard"
                             value={cantidadAgg}
                             onChange={e => setCantidadAgg(parseFloat(e.target.value))}
+                        />
+                    </div>
+                
+                : // Gramage
+                
+                    <div className='flex items-end'>
+                        <span>Cantidad actual: {gramaje}</span>
+                        <TextField
+                            margin="dense"
+                            label="Gramaje producto"
+                            type="number"
+                            fullWidth
+                            variant="standard"
+                            value={gramajeAgg}
+                            onChange={e => setGramjeAgg(parseFloat(e.target.value))}
                         />
                     </div>
                 

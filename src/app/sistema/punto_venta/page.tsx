@@ -43,7 +43,7 @@ export default function Punto_venta() {
   useEffect(() => {
 
     dispatch(setPrecioTotal(parseFloat(productosSelected.reduce((acc, item) => {
-      let precionFinal = (item.typo == 'gramaje') ? (item.precio * item.gramos) / 1000 : item.precio * item.cantidad
+      let precionFinal = (item.typo == 2) ? (item.precio * item.gramos) / 1000 : item.precio * item.cantidad
       return (acc + precionFinal)
     }, 0).toFixed(2))))
     
@@ -122,7 +122,7 @@ export default function Punto_venta() {
   }
 
   const escojerTypoCantidad = (element: IProducto_selected) => {
-    if(element.typo === "contable") {
+    if(element.typo === 1) {
       return (
         <Fragment>
           <IconButton aria-label="quitar" onClick={() => quitarCantidad(element)}>
@@ -135,7 +135,7 @@ export default function Punto_venta() {
         </Fragment>
       )
     }
-    else if(element.typo === "gramaje") {
+    else if(element.typo === 2) {
       return(
         <FormControl variant="standard" sx={{ m: 1, mt: 3, width: '12ch' }}>
           <Input
@@ -184,12 +184,12 @@ export default function Punto_venta() {
 
         { search.trim() != '' &&
         
-          <div className='resultados-busqueda'>
+          <div className='resultados-busqueda w-full md:w-[800px]'>
             {productos.filter((every_item) => every_item.nombre.toLowerCase().includes(search.toLowerCase())).map((every_item, id) => (
 
               <div key={id} className='producto' onClick={() => agregarProducto(every_item)}>
                 <span className='text-lg font-bold mr-4'>{every_item.nombre}</span>
-                <span>(Precio: {every_item.precio}) {every_item.typo == 'gramaje' ? 'KG' : ''}</span>
+                <span>(Precio: {every_item.precio}) {every_item.typo == 2 ? 'KG' : ''}</span>
               </div>
             ))}
           </div>
