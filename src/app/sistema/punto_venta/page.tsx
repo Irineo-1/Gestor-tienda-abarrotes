@@ -33,6 +33,7 @@ export default function Punto_venta() {
   useEffect(() => {
 
     getProductos().then((res) => {
+      console.log(res)
       setProductos(res)
     }).catch((err) => {
       console.error(err)
@@ -51,12 +52,13 @@ export default function Punto_venta() {
   }, [productosSelected])
 
   const agregarProducto = (producto: IProducto) => {
-
+    console.log(producto)
     // valida si ya exite ese elemento
-    const foundValue = productosSelected.find(el => el.nombre == producto.nombre)
+    const foundValue = productosSelected.find(el => el.id == producto.id)
     if(foundValue) return
 
     let porducto_seleccionado : IProducto_selected = {
+      id: producto.id,
       nombre: producto.nombre,
       precio: producto.precio,
       cantidad: 1,
@@ -74,7 +76,7 @@ export default function Punto_venta() {
   const agregarCantidad = (producto: IProducto_selected) => {
     setProductosSelected((productos) => {
       return productos.map((every_item) => {
-        if(every_item.nombre === producto.nombre) {
+        if(every_item.id === producto.id) {
           return {
             ...every_item, 
             cantidad: every_item.cantidad + 1}
@@ -87,7 +89,7 @@ export default function Punto_venta() {
   const quitarCantidad = (producto: IProducto_selected) => {
     setProductosSelected((productos) => {
       return productos.map(every_item => {
-        if(every_item.nombre === producto.nombre && every_item.cantidad > 1) {
+        if(every_item.id === producto.id && every_item.cantidad > 1) {
           return {
             ...every_item,
             cantidad: every_item.cantidad - 1
@@ -104,7 +106,7 @@ export default function Punto_venta() {
 
     setProductosSelected(productos => {
       return productos.map(producto => {
-        if(producto.nombre == element.nombre) {
+        if(producto.id == element.id) {
           return {
             ...producto,
             gramos: parseInt(valor_capturado)
@@ -115,13 +117,14 @@ export default function Punto_venta() {
     })
   }
 
-  const deleteProduct = (nombre: string) => {
+  const deleteProduct = (id: number) => {
     setProductosSelected((productos) => {
-      return productos.filter(every_item => every_item.nombre !== nombre)
+      return productos.filter(every_item => every_item.id !== id)
     })
   }
 
   const escojerTypoCantidad = (element: IProducto_selected) => {
+    console.log({element})
     if(element.typo === 1) {
       return (
         <Fragment>
@@ -201,7 +204,7 @@ export default function Punto_venta() {
               key={id}
               disableGutters
               secondaryAction={
-                <IconButton aria-label="delete" onClick={() => deleteProduct(every_item.nombre)}>
+                <IconButton aria-label="delete" onClick={() => deleteProduct(every_item.id)}>
                   <DeleteIcon />
                 </IconButton>
               }

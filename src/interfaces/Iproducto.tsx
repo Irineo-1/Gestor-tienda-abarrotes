@@ -9,6 +9,7 @@ export interface IProducto {
 }
 
 export interface IProducto_selected {
+    id: number
     nombre: string
     typo: number
     precio: number
