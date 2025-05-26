@@ -32,8 +32,9 @@ export default function Punto_venta() {
 
   useEffect(() => {
 
+    setProductosSelected(JSON.parse(localStorage.getItem("productos_seleccionados") || ""))
+
     getProductos().then((res) => {
-      console.log(res)
       setProductos(res)
     }).catch((err) => {
       console.error(err)
@@ -47,12 +48,11 @@ export default function Punto_venta() {
       let precionFinal = (item.typo == 2) ? (item.precio * item.gramos) / 1000 : item.precio * item.cantidad
       return (acc + precionFinal)
     }, 0).toFixed(2))))
-    
+
     dispatch(setCantidadProductos(productosSelected.length))
   }, [productosSelected])
 
   const agregarProducto = (producto: IProducto) => {
-    console.log(producto)
     // valida si ya exite ese elemento
     const foundValue = productosSelected.find(el => el.id == producto.id)
     if(foundValue) return
@@ -71,6 +71,8 @@ export default function Punto_venta() {
     setProductosSelected((productos) => {
       return [...productos, porducto_seleccionado]
     })
+
+    saveLocalProductsSelected()
   }
 
   const agregarCantidad = (producto: IProducto_selected) => {
@@ -84,6 +86,8 @@ export default function Punto_venta() {
         return every_item
       })
     })
+
+    saveLocalProductsSelected()
   }
 
   const quitarCantidad = (producto: IProducto_selected) => {
@@ -98,6 +102,8 @@ export default function Punto_venta() {
         return every_item
       })
     })
+
+    saveLocalProductsSelected()
   }
 
   const capturarGramos = (valor_capturado: string, element: IProducto_selected) => {
@@ -115,16 +121,19 @@ export default function Punto_venta() {
         return producto
       })
     })
+
+    saveLocalProductsSelected()
   }
 
   const deleteProduct = (id: number) => {
     setProductosSelected((productos) => {
       return productos.filter(every_item => every_item.id !== id)
     })
+
+    saveLocalProductsSelected()
   }
 
   const escojerTypoCantidad = (element: IProducto_selected) => {
-    console.log({element})
     if(element.typo === 1) {
       return (
         <Fragment>
@@ -162,6 +171,13 @@ export default function Punto_venta() {
     if(!productoBuscado) return
 
     agregarProducto(productoBuscado)
+  }
+
+  const saveLocalProductsSelected = () => {
+    setProductosSelected(prevProduc => {
+      localStorage.setItem("productos_seleccionados", JSON.stringify(prevProduc))
+      return prevProduc
+    })
   }
 
   return (
