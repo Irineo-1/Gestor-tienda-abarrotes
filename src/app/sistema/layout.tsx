@@ -12,9 +12,9 @@ export default function dashboardLayout({
 
     return (
       <div className="contenedor">
-        <div className="header"><Header /></div>
-        <div className="navbar"><Navbar /></div>
-        <div className="main">{children}</div>
+        <header className="header"><Header /></header>
+        <nav className="navbar"><Navbar /></nav>
+        <main className="main">{children}</main>
       </div>
     )
   }
