@@ -14,5 +14,6 @@ export interface IProducto_selected {
     typo: number
     precio: number
     gramos: number
+    pesage?: string
     cantidad: number
 }

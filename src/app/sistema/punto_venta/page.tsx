@@ -10,9 +10,6 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import QrCodeScanner from '@mui/icons-material/QrCodeScanner';
 import IconButton from '@mui/material/IconButton';
 import FormControl from '@mui/material/FormControl';
-import Input from '@mui/material/Input';
-import InputAdornment from '@mui/material/InputAdornment';
-import FormHelperText from '@mui/material/FormHelperText';
 import Paper from '@mui/material/Paper';
 import InputBase from '@mui/material/InputBase';
 import { IProducto, IProducto_selected } from '@/interfaces/Iproducto';
@@ -21,9 +18,15 @@ import { useAppDispatch } from '@/redux/hooks';
 import { getProductos } from '@/request/producto';
 import DetallesCompra from '@/componentes/DetallesCompra';
 import LectorBarras from '@/componentes/LectorBarras';
+import { useAtom } from 'jotai';
+import { unidadMedidaAtom } from '@/atom/unidadMedidaAtom';
+import { FormHelperText, Input, InputAdornment } from '@mui/material';
+import { GramosToKilos, kilosToGramos } from '@/utils/convercion';
 
 export default function Punto_venta() {
   
+  const [unidadMedida] = useAtom(unidadMedidaAtom)
+
   const [productosSelected, setProductosSelected] = useState<IProducto_selected[]>([])
   const [productos, setProductos] = useState<IProducto[]>([])
   const [search, setSearch] = useState<string>('')
@@ -62,7 +65,8 @@ export default function Punto_venta() {
       nombre: producto.nombre,
       precio: producto.precio,
       cantidad: 1,
-      gramos: 0,
+      gramos: 1000,
+      pesage: "1",
       typo: producto.typo
     }
 
@@ -106,16 +110,17 @@ export default function Punto_venta() {
     saveLocalProductsSelected()
   }
 
-  const capturarGramos = (valor_capturado: string, element: IProducto_selected) => {
-    
-    if(isNaN(parseInt(valor_capturado))) return
+  const capturarPesage = (valorCapturado: string, element: IProducto_selected) => {
+
+    if(isNaN(parseFloat(valorCapturado))) return
 
     setProductosSelected(productos => {
       return productos.map(producto => {
         if(producto.id == element.id) {
           return {
             ...producto,
-            gramos: parseInt(valor_capturado)
+            pesage: (unidadMedida == "gm") ? GramosToKilos(parseFloat(valorCapturado)) : valorCapturado,
+            gramos: (unidadMedida == "gm") ? parseInt(valorCapturado) : kilosToGramos(parseFloat(valorCapturado))
           }
         }
         return producto
@@ -152,9 +157,10 @@ export default function Punto_venta() {
         <FormControl variant="standard" sx={{ m: 1, mt: 3, width: '12ch' }}>
           <Input
             id="standard-adornment-weight"
-            type='number'
-            onChange={e => capturarGramos(e.target.value, element)}
-            endAdornment={<InputAdornment position="end">Gm</InputAdornment>}
+            type='text'
+            value={(unidadMedida == "gm") ? element.gramos : element.pesage}
+            onChange={e => capturarPesage(e.target.value, element)}
+            endAdornment={<InputAdornment position="end">{unidadMedida}</InputAdornment>}
             aria-describedby="standard-weight-helper-text"
             inputProps={{
               'aria-label': 'Peso',
