@@ -31,8 +31,8 @@ export default function Modal({open, setOpen, children, titulo, textoBotonConfir
         open={open}
         onClose={persistent ? undefined : handleClose}
         disableEscapeKeyDown={persistent}
-        aria-labelledby="alert-dialog-title"
-        aria-describedby="alert-dialog-description"
+        aria-labelledby={titulo}
+        aria-describedby={titulo}
       >
         <DialogTitle>
           {titulo}

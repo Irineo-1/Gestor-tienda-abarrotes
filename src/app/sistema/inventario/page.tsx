@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { getProductos, addProductos, deleteProducto, updateProducto } from '@/request/producto';
 import { IProducto } from '@/interfaces/Iproducto';
 import Button from '@mui/material/Button';
@@ -21,6 +21,11 @@ import QrCodeScanner from '@mui/icons-material/QrCodeScanner';
 import { IconButton } from '@mui/material';
 import LectorBarras from '@/componentes/LectorBarras';
 
+interface editarProducto extends IProducto {
+    cantidadAgregar: number
+    gramajeAgregar: number
+}
+
 export default function Inventario() {
 
     const [productos, setProductos] = useState<IProducto[]>([])
@@ -34,17 +39,11 @@ export default function Inventario() {
     const [errorMessage, seterrorMessage] = useState<string>("")
     const [errorOpen, setErrorOpen] = useState<boolean>(false)
 
-    const [codigoBarras, setCodigoBarras] = useState<string>('')
-    const [nombre, setNombre] = useState<string>('')
-    const [precio, setPrecio] = useState<number>(0)
-    const [gramaje, setGramje] = useState<number>(0)
-    const [gramajeAgg, setGramjeAgg] = useState<number>(0)
-    const [cantidad, setCantidad] = useState<number>(0)
-    const [cantidadAgg, setCantidadAgg] = useState<number>(0)
-    const [id, setId] = useState<number>(0)
-    const [typoEditar, setTypoEditar] = useState<number>(0)
-    const [typoAgregar, setTypoAgregar] = useState<number>(0)
     const [toDelete, setToDelete] = useState<{id: number, nombre: string}>()
+
+    // Refactor edit
+    const [productoActualEditar, setProductoActualEditar] = useState<editarProducto>({} as editarProducto)
+    const [productoActualAgregar, setProductoActualAgregar] = useState<IProducto>({} as IProducto)
 
     const headersTablaTest: HeadersTabla<IProducto>[] = [
         {
@@ -67,31 +66,37 @@ export default function Inventario() {
 
     const agregar = ()  => {
 
-        const producto: IProducto = {
-            nombre: nombre,
-            precio: precio,
-            gramaje: gramaje,
-            cantidad_contable: cantidad,
-            typo: typoAgregar,
-            codigo_barras: codigoBarras,
-            id: 0 // Este id es temporal. Una vez insertado el registro se remplaza en el then de addProductos 🆔
+        if(productoActualAgregar.typo == 1) {
+            productoActualAgregar.gramaje = 0
+        }
+        else {
+            productoActualAgregar.cantidad_contable = 0
         }
 
-        const validate = [nombre.trim(), precio, gramaje, cantidad, typoAgregar, codigoBarras.trim()]
+        productoActualAgregar.id = 0 // al responder la solicitud se resetea
+
+        const validate = [
+            productoActualAgregar.nombre.trim(), 
+            productoActualAgregar.precio, 
+            productoActualAgregar.gramaje, 
+            productoActualAgregar.cantidad_contable, 
+            productoActualAgregar.typo, 
+            productoActualAgregar.codigo_barras.trim()
+        ]
 
         if(validate.includes('')) { 
             seterrorMessage('No puede haber valores vacios')
             setErrorOpen(true)
         }
 
-        addProductos(producto).then((data) => {
+        addProductos(productoActualAgregar).then((data) => {
             setSuccessMessage('Producto agregado exitosamente')
             setSuccessOpen(true)
  
-            producto.id = data.id // Se modifica el id para poder editar y eliminar 🆔
+            productoActualAgregar.id = data.id // Se modifica el id para poder editar y eliminar 🆔
 
             setProductos(productos => {
-                return [...productos, producto]
+                return [...productos, productoActualAgregar]
             })
 
         }).catch(() => {
@@ -103,21 +108,20 @@ export default function Inventario() {
     }
 
     const editar = () => {
-
         seterrorMessage('No puede haber valores vacios')
-        if(nombre.trim() == '') return setErrorOpen(true)
-        if(isNaN(precio)) return setErrorOpen(true)
-        if(isNaN(gramaje)) return setErrorOpen(true)
-        if(isNaN(cantidad)) return setErrorOpen(true)
+        if(productoActualEditar.nombre.trim() == '') return setErrorOpen(true)
+        if(isNaN(productoActualEditar.precio)) return setErrorOpen(true)
+        if(isNaN(productoActualEditar.gramajeAgregar)) return setErrorOpen(true)
+        if(isNaN(productoActualEditar.cantidadAgregar)) return setErrorOpen(true)
 
         const producto: IProducto = {
-            nombre: nombre,
-            precio: precio,
-            gramaje: gramaje + gramajeAgg,
-            cantidad_contable: cantidad + cantidadAgg,
-            typo: 0, // No utilizado
-            codigo_barras: codigoBarras, // No utilizado
-            id: id
+            nombre: productoActualEditar.nombre,
+            precio: productoActualEditar.precio,
+            gramaje: productoActualEditar.gramaje + productoActualEditar.gramajeAgregar,
+            cantidad_contable: productoActualEditar.cantidad_contable + productoActualEditar.cantidadAgregar,
+            typo: productoActualEditar.typo, // No utilizado
+            codigo_barras: productoActualEditar.codigo_barras, // No utilizado
+            id: productoActualEditar.id
         }
 
         updateProducto(producto).then(() => {
@@ -159,24 +163,19 @@ export default function Inventario() {
     }
 
     const handleEditarOpenModal = (producto: IProducto) => {
-        setNombre(producto.nombre)
-        setPrecio(producto.precio)
-        setGramje(producto.gramaje)
-        setCantidad(producto.cantidad_contable)
-        setId(producto.id)
-        setTypoEditar(producto.typo)
+
+        const producto_editar: editarProducto = {
+            ...producto,
+            gramajeAgregar: 0,
+            cantidadAgregar: 0
+        }
+
+        setProductoActualEditar(producto_editar)
         setOpenEdit(true)
     }
 
     const handleAgregarOpenModal = () => {
-        setCodigoBarras('')
-        setNombre('')
-        setPrecio(0)
-        setGramje(0)
-        setCantidad(0)
-        setId(0)
-        setTypoEditar(0)
-        setTypoAgregar(0)
+        setProductoActualAgregar({} as IProducto)
         setOpen(true)
     }
 
@@ -186,7 +185,27 @@ export default function Inventario() {
     }
 
     const getCodigoBarras = (codigo: string) => {
-        setCodigoBarras(codigo)
+        productoActualAgregar.codigo_barras = codigo
+    }
+
+    const cambiarPropiedadesProductoEditar = <T extends keyof editarProducto> (name: editarProducto[T], toChange: T) => {
+
+        setProductoActualEditar(producto => {
+            return {
+                ...producto,
+                [toChange]: name
+            }
+        })
+    }
+
+    const cambiarPropiedadesProductoAgregar = <T extends keyof IProducto> (name: IProducto[T], toChange: T) => {
+
+        setProductoActualAgregar(producto => {
+            return {
+                ...producto,
+                [toChange]: name
+            }
+        })
     }
 
     useEffect(() => {
@@ -218,8 +237,8 @@ export default function Inventario() {
                         margin="dense"
                         label="Codigo de barras"
                         type="text"
-                        value={codigoBarras}
-                        onChange={e => setCodigoBarras(e.target.value)}
+                        value={productoActualAgregar.codigo_barras}
+                        onChange={e => cambiarPropiedadesProductoAgregar(e.target.value, "codigo_barras")}
                         fullWidth
                         variant="standard"
                     />
@@ -233,8 +252,8 @@ export default function Inventario() {
                     margin="dense"
                     label="Nombre producto"
                     type="text"
-                    value={nombre}
-                    onChange={e => setNombre(e.target.value)}
+                    value={productoActualAgregar.nombre}
+                    onChange={e => cambiarPropiedadesProductoAgregar(e.target.value, "nombre")}
                     fullWidth
                     variant="standard"
                 />
@@ -243,8 +262,8 @@ export default function Inventario() {
                     margin="dense"
                     label="Precio producto"
                     type="number"
-                    value={precio}
-                    onChange={e => setPrecio(parseFloat(e.target.value))}
+                    value={productoActualAgregar.precio}
+                    onChange={e => cambiarPropiedadesProductoAgregar(parseFloat(e.target.value), "precio")}
                     fullWidth
                     variant="standard"
                 />
@@ -254,38 +273,36 @@ export default function Inventario() {
                         labelId="demo-simple-select-label"
                         id="demo-simple-select"
                         label="Typo de producto"
-                        value={typoAgregar}
-                        onChange={e => setTypoAgregar(parseInt(e.target.value.toString()))}
+                        value={productoActualAgregar.typo}
+                        onChange={e => cambiarPropiedadesProductoAgregar(parseInt(e.target.value.toString()), "typo")}
                     >
                         <MenuItem value={1}>Contable</MenuItem>
                         <MenuItem value={2}>Gramaje</MenuItem>
                     </Select>
                 </FormControl>
-                {typoAgregar == 2 ? 
+                {productoActualAgregar.typo == 2 ? 
                     
                     <TextField
                         margin="dense"
                         label="Gramaje producto"
                         type="number"
-                        value={gramaje}
-                        onChange={e => setGramje(parseInt(e.target.value))}
+                        value={productoActualAgregar.gramaje}
+                        onChange={e => cambiarPropiedadesProductoAgregar(parseInt(e.target.value), "gramaje")}
                         fullWidth
                         variant="standard"
                     />
                 
-                : (typoAgregar == 1) ?
+                : (productoActualAgregar.typo == 1) &&
             
                     <TextField
                         margin="dense"
                         label="Cantidad producto"
                         type="number"
-                        value={cantidad}
-                        onChange={e => setCantidad(parseInt(e.target.value))}
+                        value={productoActualAgregar.cantidad_contable}
+                        onChange={e => cambiarPropiedadesProductoAgregar(parseInt(e.target.value), "cantidad_contable")}
                         fullWidth
                         variant="standard"
                     />
-                :
-                    <></>    
                 }
                 
             </DialogContent>
@@ -295,6 +312,7 @@ export default function Inventario() {
         <ModalProductos open={openEdit} handleAgregar={editar} setOpen={setOpenEdit} textAction='Editar'>
 
             <DialogTitle>Editar producto</DialogTitle>
+
             <DialogContent>
                 <TextField
                     autoFocus
@@ -302,8 +320,8 @@ export default function Inventario() {
                     margin="dense"
                     label="Nombre producto"
                     type="text"
-                    value={nombre}
-                    onChange={e => setNombre(e.target.value)}
+                    value={productoActualEditar.nombre}
+                    onChange={e => cambiarPropiedadesProductoEditar(e.target.value, "nombre")}
                     fullWidth
                     variant="standard"
                 />
@@ -312,39 +330,39 @@ export default function Inventario() {
                     margin="dense"
                     label="Precio producto"
                     type="number"
-                    value={precio}
-                    onChange={e => setPrecio(parseFloat(e.target.value))}
+                    value={productoActualEditar.precio}
+                    onChange={e => cambiarPropiedadesProductoEditar(parseFloat(e.target.value), "precio")}
                     fullWidth
                     variant="standard"
                 />
 
-                {typoEditar == 1 ? // contable
+                {productoActualEditar.typo == 1 ? // contable
                 
                     <div className='flex items-end'>
-                        <span>Cantidad actual: {cantidad}</span>
+                        <span>Cantidad actual: {productoActualEditar.cantidad_contable}</span>
                         <TextField
                             margin="dense"
                             label="Agregar cantidad"
                             type="number"
                             fullWidth
                             variant="standard"
-                            value={cantidadAgg}
-                            onChange={e => setCantidadAgg(parseFloat(e.target.value))}
+                            value={productoActualEditar.cantidadAgregar}
+                            onChange={e => cambiarPropiedadesProductoEditar(parseFloat(e.target.value), "cantidadAgregar")}
                         />
                     </div>
                 
                 : // Gramage
                 
                     <div className='flex items-end'>
-                        <span>Cantidad actual: {gramaje}</span>
+                        <span>Cantidad actual: {productoActualEditar.gramaje}</span>
                         <TextField
                             margin="dense"
                             label="Gramaje producto"
-                            type="number"
+                            type="text"
                             fullWidth
                             variant="standard"
-                            value={gramajeAgg}
-                            onChange={e => setGramjeAgg(parseFloat(e.target.value))}
+                            value={productoActualEditar.gramajeAgregar}
+                            onChange={e => cambiarPropiedadesProductoEditar(parseFloat(e.target.value), "gramajeAgregar")}
                         />
                     </div>
                 
