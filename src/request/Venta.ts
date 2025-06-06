@@ -25,8 +25,6 @@ export const addVenta = async (venta: ICurrent_venta): Promise<responseFetch<str
         data: body_response,
         status: response.status
     } as responseFetch<string>
-
-    // if(!response.ok) throw new Error('Error al Insertar la venta')
 }
 
 export const getVentas = async (date: string): Promise<IVenta_gp_codigo[]> => {
