@@ -6,28 +6,35 @@ import {
 import { HeadersTabla } from "../interfaces/Tabla";
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import { IProducto } from "@/interfaces/Iproducto";
+import { GramosToKilos } from "@/utils/convercion";
 
-type props<T> = {
-  headers: HeadersTabla<T>[]
-  data: T[]
-  editData?: (row: T) => void
-  deleteData?: (row: T) => void
+type props = {
+  headers: HeadersTabla<IProducto>[]
+  data: IProducto[]
+  editData?: (row: IProducto) => void
+  deleteData?: (row: IProducto) => void
   acciones: boolean
 }
 
-export default function Tabla<T>({headers, data, editData, deleteData, acciones}: props<T>) {
+export default function Tabla({headers, data, editData, deleteData, acciones}: props) {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [order, setOrder] = useState<"asc" | "desc">("asc");
-  const [orderBy, setOrderBy] = useState<keyof T>(headers[0].valor);
+  const [orderBy, setOrderBy] = useState<keyof IProducto>("nombre" as keyof IProducto);
   
-  const handleRequestSort = (property: keyof T) => {
+  const handleRequestSort = (property: keyof IProducto) => {
     const isAsc = orderBy === property && order === "asc";
     setOrder(isAsc ? "desc" : "asc");
     setOrderBy(property);
   };
 
-  const sortedRows = [...data].sort((a, b) => {
+  const sortedRows = [...data].sort((a, b) => {   
+
+    if (a[orderBy] == null && b[orderBy] == null) return 0;
+    if (a[orderBy] == null) return order === "asc" ? -1 : 1;
+    if (b[orderBy] == null) return order === "asc" ? 1 : -1;
+    
     if (a[orderBy] < b[orderBy]) return order === "asc" ? -1 : 1;
     if (a[orderBy] > b[orderBy]) return order === "asc" ? 1 : -1;
     return 0;
@@ -48,12 +55,12 @@ export default function Tabla<T>({headers, data, editData, deleteData, acciones}
         <Table>
           <TableHead>
             <TableRow>
-              {headers.map((column, i) => (
-                <TableCell key={i}>
+              {headers.map((column) => (
+                <TableCell key={column.titulo}>
                   <TableSortLabel
                     active={orderBy === column.valor}
                     direction={orderBy === column.valor ? order : "asc"}
-                    onClick={() => handleRequestSort(column.valor)}
+                    onClick={() => handleRequestSort(column.valor as keyof IProducto)}
                   >
                     {column.titulo.charAt(0).toUpperCase() + column.titulo.slice(1)}
                   </TableSortLabel>
@@ -68,9 +75,17 @@ export default function Tabla<T>({headers, data, editData, deleteData, acciones}
           </TableHead>
           <TableBody>
             {sortedRows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, i) => (
-              <TableRow key={i}>
-                {headers.map((header, j) => (
-                  <TableCell key={j}>{String(row[header.valor])}</TableCell>
+              <TableRow key={row.id}>
+                {headers.map((header) => (
+                  <TableCell key={header.valor as string}>
+                    {
+                      (header.titulo == "kilaje")
+                      ?
+                        GramosToKilos(Number(row[header.valor]))
+                      :
+                        row[header.valor]
+                    }
+                  </TableCell>
                 ))}
                 {acciones &&
                   <TableCell>

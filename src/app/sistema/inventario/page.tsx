@@ -20,6 +20,10 @@ import { HeadersTabla } from '@/interfaces/Tabla';
 import QrCodeScanner from '@mui/icons-material/QrCodeScanner';
 import { IconButton } from '@mui/material';
 import LectorBarras from '@/componentes/LectorBarras';
+import { unidadMedidaAtom } from '@/atom/unidadMedidaAtom';
+import { useAtom } from 'jotai';
+import { GramosToKilos } from '@/utils/convercion';
+
 
 interface editarProducto extends IProducto {
     cantidadAgregar: number
@@ -41,9 +45,10 @@ export default function Inventario() {
 
     const [toDelete, setToDelete] = useState<{id: number, nombre: string}>()
 
-    // Refactor edit
     const [productoActualEditar, setProductoActualEditar] = useState<editarProducto>({} as editarProducto)
     const [productoActualAgregar, setProductoActualAgregar] = useState<IProducto>({} as IProducto)
+
+    const [unidadMedida] = useAtom(unidadMedidaAtom)
 
     const headersTablaTest: HeadersTabla<IProducto>[] = [
         {
@@ -55,7 +60,7 @@ export default function Inventario() {
             valor: "precio"
         },
         {
-            titulo: "Gramaje",
+            titulo: (unidadMedida == "gm") ? "Gramaje" : "kilaje",
             valor: "gramaje"
         },
         {
@@ -354,10 +359,10 @@ export default function Inventario() {
                 : // Gramage
                 
                     <div className='flex items-end'>
-                        <span>Cantidad actual: {productoActualEditar.gramaje}</span>
+                        <span>Cantidad actual: {(unidadMedida == "gm") ? productoActualEditar.gramaje : GramosToKilos(productoActualEditar.gramaje)} {unidadMedida}</span>
                         <TextField
                             margin="dense"
-                            label="Gramaje producto"
+                            label={`${(unidadMedida == "gm") ? "Gramaje" : "Kilaje"} producto`}
                             type="text"
                             fullWidth
                             variant="standard"

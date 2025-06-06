@@ -17,10 +17,14 @@ import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import TextField from '@mui/material/TextField';
 import { IVenta, IVenta_gp_codigo } from '@/interfaces/IVenta';
 import { getVentas } from '@/request/Venta'
-
+import { unidadMedidaAtom } from '@/atom/unidadMedidaAtom';
+import { useAtom } from 'jotai';
+import { GramosToKilos } from '@/utils/convercion';
 
 function Row({ventas}: {ventas: IVenta_gp_codigo}) {
-    const [open, setOpen] = useState(false);
+    const [open, setOpen] = useState(false)
+
+    const [unidadMedida] = useAtom(unidadMedidaAtom)
     
     if(ventas == undefined) return
 
@@ -57,7 +61,7 @@ function Row({ventas}: {ventas: IVenta_gp_codigo}) {
                         <TableRow>
                             <TableCell>Nombre</TableCell>
                             <TableCell>Cantidad</TableCell>
-                            <TableCell>Gramaje</TableCell>
+                            <TableCell>{unidadMedida == "gm" ? "Gramaje" : "Kilaje" }</TableCell>
                             <TableCell align="right">Precio</TableCell>
                         </TableRow>
                         </TableHead>
@@ -68,7 +72,7 @@ function Row({ventas}: {ventas: IVenta_gp_codigo}) {
                                     {producto.nombre}
                                 </TableCell>
                                 <TableCell>{producto.cantidad}</TableCell>
-                                <TableCell>{producto.gramaje}</TableCell>
+                                <TableCell>{unidadMedida == "gm" ? producto.gramaje : GramosToKilos(producto.gramaje) }</TableCell>
                                 <TableCell align="right">{producto.precio_acumulado}</TableCell>
                             </TableRow>
                         ))}

@@ -18,14 +18,17 @@ import TextField from '@mui/material/TextField';
 type paramProduct = {
   productosSelected: IProducto_selected[]
   setProductosSelected: (value: IProducto_selected[]) => void
+  realizarPago: (pago: number) => Promise<void>
 }
 
-export default function DetallesCompra({productosSelected, setProductosSelected}: paramProduct) {
+export default function DetallesCompra({productosSelected, setProductosSelected, realizarPago}: paramProduct) {
 
   const [isOpenForm, setIsOpenForm] = useState(false)
   const [isOpenWarningAlert, setIsOpenWarningAlert] = useState(false)
   const [isOpenErrorAlert, setIsOpenErrorAlert] = useState(false)
   const [isOpenSuccessAlert, setIsOpenSuccessAlert] = useState(false)
+
+  const [mesajeError, setMensajeError] = useState("No se pudo hacer el cobro, intenta mas tarde")
 
   const [pago, setPago] = useState(0);
   const [cambio, setCambio] = useState(0);
@@ -34,30 +37,20 @@ export default function DetallesCompra({productosSelected, setProductosSelected}
   const precioTotal = useAppSelector(state => state.cuenta.precioTotal)
   const dispatch = useAppDispatch()
 
-  const getPago = (pago: number) => {
-    const venta: ICurrent_venta = {
-      productos: productosSelected,
-      pago: pago
-    }
+  const handlePago = async () => {
 
-    console.log(venta)
+    if(pago < precioTotal) return setIsOpenErrorAlert(true)
 
-    addVenta(venta)
-    .then(() => {
-      setProductosSelected([])
+    realizarPago(pago).then(() => {
       dispatch(setCantidadProductos(0))
       dispatch(setPrecioTotal(0))
       setIsOpenSuccessAlert(true)
     })
-    .catch(() => {
+    .catch((error) => {
+      setMensajeError(error)
       setIsOpenErrorAlert(true)
     })
-  }
 
-  const handlePago = () => {
-
-    if(pago < precioTotal) return setIsOpenErrorAlert(true)
-    getPago(pago)
     setPago(0)
     setIsOpenForm(false)
   }
@@ -107,7 +100,7 @@ export default function DetallesCompra({productosSelected, setProductosSelected}
         </Modal>
 
         <WarningAlert open={isOpenWarningAlert} mensage='Agregar productos primero' setOpen={setIsOpenWarningAlert}/>
-        <ErrorAlert open={isOpenErrorAlert} mensage='No se pudo hacer el cobro, intenta mas tarde' setOpen={setIsOpenErrorAlert}/>
+        <ErrorAlert open={isOpenErrorAlert} mensage={mesajeError} setOpen={setIsOpenErrorAlert}/>
         <SuccsessAlert open={isOpenSuccessAlert} mensage='El pago se ha realizado con éxito' setOpen={setIsOpenSuccessAlert}/>
       </div>
     )

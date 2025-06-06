@@ -22,6 +22,8 @@ import { useAtom } from 'jotai';
 import { unidadMedidaAtom } from '@/atom/unidadMedidaAtom';
 import { FormHelperText, Input, InputAdornment } from '@mui/material';
 import { GramosToKilos, kilosToGramos } from '@/utils/convercion';
+import { ICurrent_venta } from '@/interfaces/IVenta';
+import { addVenta } from '@/request/Venta';
 
 export default function Punto_venta() {
   
@@ -138,6 +140,27 @@ export default function Punto_venta() {
     saveLocalProductsSelected()
   }
 
+  const realizarPago = (pago: number): Promise<void> => {
+
+    const venta: ICurrent_venta = {
+      productos: productosSelected,
+      pago: pago
+    }
+
+    return new Promise(async (resolve, reject) => {
+
+      const {error} = await addVenta(venta)
+      console.log(error)
+      if(error) return reject(error)
+      
+      setProductosSelected([])
+      saveLocalProductsSelected()
+      resolve()
+
+    })
+
+  }
+
   const escojerTypoCantidad = (element: IProducto_selected) => {
     if(element.typo === 1) {
       return (
@@ -240,7 +263,7 @@ export default function Punto_venta() {
         </List>
       </div>
       <div className='detalles-container'>
-        <DetallesCompra productosSelected={productosSelected} setProductosSelected={setProductosSelected} />
+        <DetallesCompra productosSelected={productosSelected} setProductosSelected={setProductosSelected} realizarPago={realizarPago} />
       </div>
 
       <LectorBarras open={isOpenModalLector} setOpen={setIsOpenModalLector} getCode={getCodigoBarras}/>
