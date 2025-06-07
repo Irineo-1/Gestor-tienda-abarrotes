@@ -119,13 +119,15 @@ export default function Punto_venta() {
 
   const capturarPesage = (valorCapturado: string, element: IProducto_selected) => {
 
-    if(isNaN(parseFloat(valorCapturado))) return
+    const valor = parseFloat(valorCapturado)
+
+    if(isNaN(valor)) return
 
     setProductosSelected(productos => {
       return productos.map(producto => {
         if(producto.id == element.id) {
 
-          const valorGramos = (unidadMedida == "gm") ? parseFloat(valorCapturado) : kilosToGramos(parseFloat(valorCapturado))
+          const valorGramos = (unidadMedida == "gm") ? valor : kilosToGramos(valor)
 
           // El stock siempre estara en gramos
           if(valorGramos >= Number(producto.stock)) {
@@ -134,8 +136,8 @@ export default function Punto_venta() {
 
           return {
             ...producto,
-            pesage: (unidadMedida == "gm") ? GramosToKilos(parseFloat(valorCapturado)) : valorCapturado,
-            gramos: (unidadMedida == "gm") ? parseInt(valorCapturado) : kilosToGramos(parseFloat(valorCapturado))
+            pesage: (unidadMedida == "gm") ? GramosToKilos(valor) : valorCapturado,
+            gramos: (unidadMedida == "gm") ? parseInt(valorCapturado) : kilosToGramos(valor)
           }
         }
         return producto
