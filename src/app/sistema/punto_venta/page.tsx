@@ -23,7 +23,8 @@ import { unidadMedidaAtom } from '@/atom/unidadMedidaAtom';
 import { FormHelperText, Input, InputAdornment } from '@mui/material';
 import { GramosToKilos, kilosToGramos } from '@/utils/convercion';
 import { ICurrent_venta } from '@/interfaces/IVenta';
-import { addVenta } from '@/request/Venta';
+import { addVenta } from '@/request/Venta'; 
+import { TIPO_PRODUCTO } from '@/interfaces/Iproducto';
 
 export default function Punto_venta() {
   
@@ -66,8 +67,8 @@ export default function Punto_venta() {
       id: producto.id,
       nombre: producto.nombre,
       precio: producto.precio,
-      cantidad: (producto.typo == 1) ? 1 : 0,
-      gramos: (producto.typo == 2) ? 1000 : 0,
+      cantidad: (producto.typo == TIPO_PRODUCTO.CONTABLE) ? 1 : 0,
+      gramos: (producto.typo == TIPO_PRODUCTO.GRAMAJE) ? 1000 : 0,
       pesage: "1",
       typo: producto.typo,
       stock: (producto.typo == 1) ? producto.cantidad_contable : producto.gramaje
@@ -174,7 +175,7 @@ export default function Punto_venta() {
   }
 
   const escojerTypoCantidad = (element: IProducto_selected) => {
-    if(element.typo === 1) {
+    if(element.typo === TIPO_PRODUCTO.CONTABLE) {
       return (
         <Fragment>
           <IconButton aria-label="quitar" onClick={() => quitarCantidad(element)}>
@@ -187,7 +188,7 @@ export default function Punto_venta() {
         </Fragment>
       )
     }
-    else if(element.typo === 2) {
+    else if(element.typo === TIPO_PRODUCTO.GRAMAJE) {
       return(
         <FormControl variant="standard" sx={{ m: 1, mt: 3, width: '12ch' }}>
           <Input
@@ -249,7 +250,7 @@ export default function Punto_venta() {
 
               <div key={id} className='producto' onClick={() => agregarProducto(every_item)}>
                 <span className='text-lg font-bold mr-4'>{every_item.nombre}</span>
-                <span>(Precio: {every_item.precio}) {every_item.typo == 2 ? 'KG' : ''}</span>
+                <span>(Precio: {every_item.precio}) {every_item.typo == TIPO_PRODUCTO.GRAMAJE ? 'KG' : ''}</span>
               </div>
             ))}
           </div>

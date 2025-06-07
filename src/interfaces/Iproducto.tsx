@@ -18,3 +18,8 @@ export interface IProducto_selected {
     cantidad: number
     stock?: number
 }
+
+export const TIPO_PRODUCTO = {
+    CONTABLE: 1,
+    GRAMAJE: 2
+} as const;
