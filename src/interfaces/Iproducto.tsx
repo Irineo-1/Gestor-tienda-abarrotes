@@ -16,4 +16,5 @@ export interface IProducto_selected {
     gramos: number
     pesage?: string
     cantidad: number
+    stock?: number
 }

@@ -66,10 +66,11 @@ export default function Punto_venta() {
       id: producto.id,
       nombre: producto.nombre,
       precio: producto.precio,
-      cantidad: 1,
-      gramos: 1000,
+      cantidad: (producto.typo == 1) ? 1 : 0,
+      gramos: (producto.typo == 2) ? 1000 : 0,
       pesage: "1",
-      typo: producto.typo
+      typo: producto.typo,
+      stock: (producto.typo == 1) ? producto.cantidad_contable : producto.gramaje
     }
 
     setSearch('')
@@ -84,6 +85,9 @@ export default function Punto_venta() {
   const agregarCantidad = (producto: IProducto_selected) => {
     setProductosSelected((productos) => {
       return productos.map((every_item) => {
+
+        if(every_item.cantidad == producto.stock) return every_item
+        
         if(every_item.id === producto.id) {
           return {
             ...every_item, 
@@ -119,6 +123,14 @@ export default function Punto_venta() {
     setProductosSelected(productos => {
       return productos.map(producto => {
         if(producto.id == element.id) {
+
+          const valorGramos = (unidadMedida == "gm") ? parseFloat(valorCapturado) : kilosToGramos(parseFloat(valorCapturado))
+
+          // El stock siempre estara en gramos
+          if(valorGramos >= Number(producto.stock)) {
+            valorCapturado = (unidadMedida == "gm") ? producto.stock?.toString() ?? "" : GramosToKilos(parseFloat(producto.stock?.toString() ?? ""))
+          }
+
           return {
             ...producto,
             pesage: (unidadMedida == "gm") ? GramosToKilos(parseFloat(valorCapturado)) : valorCapturado,
