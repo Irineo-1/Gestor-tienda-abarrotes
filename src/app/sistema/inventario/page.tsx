@@ -1,8 +1,8 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { getProductos, addProductos, deleteProducto, updateProducto } from '@/request/producto';
-import { IProducto } from '@/interfaces/Iproducto';
+import { IProducto, TIPO_PRODUCTO } from '@/interfaces/Iproducto';
 import Button from '@mui/material/Button';
 import AddIcon from '@mui/icons-material/Add';
 import ModalProductos from '@/componentes/ModalProductos';
@@ -71,7 +71,7 @@ export default function Inventario() {
 
     const agregar = ()  => {
 
-        if(productoActualAgregar.typo == 1) {
+        if(productoActualAgregar.typo == TIPO_PRODUCTO.CONTABLE) {
             productoActualAgregar.gramaje = 0
         }
         else {
@@ -281,11 +281,11 @@ export default function Inventario() {
                         value={productoActualAgregar.typo}
                         onChange={e => cambiarPropiedadesProductoAgregar(parseInt(e.target.value.toString()), "typo")}
                     >
-                        <MenuItem value={1}>Contable</MenuItem>
-                        <MenuItem value={2}>Gramaje</MenuItem>
+                        <MenuItem value={TIPO_PRODUCTO.CONTABLE}>Contable</MenuItem>
+                        <MenuItem value={TIPO_PRODUCTO.GRAMAJE}>Gramaje</MenuItem>
                     </Select>
                 </FormControl>
-                {productoActualAgregar.typo == 2 ? 
+                {productoActualAgregar.typo == TIPO_PRODUCTO.GRAMAJE ? 
                     
                     <TextField
                         margin="dense"
@@ -297,7 +297,7 @@ export default function Inventario() {
                         variant="standard"
                     />
                 
-                : (productoActualAgregar.typo == 1) &&
+                : (productoActualAgregar.typo == TIPO_PRODUCTO.CONTABLE) &&
             
                     <TextField
                         margin="dense"
@@ -341,7 +341,7 @@ export default function Inventario() {
                     variant="standard"
                 />
 
-                {productoActualEditar.typo == 1 ? // contable
+                {productoActualEditar.typo == TIPO_PRODUCTO.CONTABLE ?
                 
                     <div className='flex items-end'>
                         <span>Cantidad actual: {productoActualEditar.cantidad_contable}</span>
