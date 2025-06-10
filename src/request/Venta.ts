@@ -18,11 +18,16 @@ export const addVenta = async (venta: ICurrent_venta): Promise<responseFetch<str
         body: JSON.stringify(venta)
     })
 
-    const body_response = await response.json()
+    let error_response = ""
+
+    if(!response.ok) {
+        const jsonResponse = await response.json()
+        error_response = jsonResponse.error
+    }
 
     return {
-        error: (!response.ok) ? body_response.error : "",
-        data: body_response,
+        error: error_response,
+        data: "",
         status: response.status
     } as responseFetch<string>
 }

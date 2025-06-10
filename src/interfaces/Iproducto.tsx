@@ -21,5 +21,6 @@ export interface IProducto_selected {
 
 export const TIPO_PRODUCTO = {
     CONTABLE: 1,
-    GRAMAJE: 2
+    GRAMAJE: 2,
+    GENERICO: 3
 } as const;

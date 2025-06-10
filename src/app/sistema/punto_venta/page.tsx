@@ -20,15 +20,19 @@ import DetallesCompra from '@/componentes/DetallesCompra';
 import LectorBarras from '@/componentes/LectorBarras';
 import { useAtom } from 'jotai';
 import { unidadMedidaAtom } from '@/atom/unidadMedidaAtom';
-import { FormHelperText, Input, InputAdornment } from '@mui/material';
+import { DialogContent, DialogTitle, FormHelperText, Input, InputAdornment, InputLabel, TextField } from '@mui/material';
 import { GramosToKilos, kilosToGramos } from '@/utils/convercion';
 import { ICurrent_venta } from '@/interfaces/IVenta';
 import { addVenta } from '@/request/Venta'; 
 import { TIPO_PRODUCTO } from '@/interfaces/Iproducto';
+import ModalProductos from '@/componentes/ModalProductos';
 
 export default function Punto_venta() {
   
   const [unidadMedida] = useAtom(unidadMedidaAtom)
+
+  const [openModalGenericProduct, setOpenModalGenericProduct] = useState(false)
+  const [productoGenerico, setProductoGenerico] = useState<IProducto_selected>({} as IProducto_selected)
 
   const [productosSelected, setProductosSelected] = useState<IProducto_selected[]>([])
   const [productos, setProductos] = useState<IProducto[]>([])
@@ -57,6 +61,16 @@ export default function Punto_venta() {
 
     dispatch(setCantidadProductos(productosSelected.length))
   }, [productosSelected])
+
+  const agregarGenerico = () => {
+    productoGenerico.typo = TIPO_PRODUCTO.GENERICO
+    productoGenerico.id = -1 // 
+    productoGenerico.gramos = 0
+
+    setOpenModalGenericProduct(false)
+
+    setProductosSelected(productos => [...productos, productoGenerico])
+  }
 
   const agregarProducto = (producto: IProducto) => {
     // valida si ya exite ese elemento
@@ -177,7 +191,7 @@ export default function Punto_venta() {
   }
 
   const escojerTypoCantidad = (element: IProducto_selected) => {
-    if(element.typo === TIPO_PRODUCTO.CONTABLE) {
+    if(element.typo === TIPO_PRODUCTO.CONTABLE || element.typo == TIPO_PRODUCTO.GENERICO) {
       return (
         <Fragment>
           <IconButton aria-label="quitar" onClick={() => quitarCantidad(element)}>
@@ -224,6 +238,15 @@ export default function Punto_venta() {
     })
   }
 
+  const cambiarPropiedadesProductoGenerico = <T extends keyof IProducto_selected>(valor: IProducto_selected[T], propiedad: T) => {
+    setProductoGenerico(prev => {
+      return {
+        ...prev,
+        [propiedad]: valor
+      }
+    })
+  }
+
   return (
     <div className='main-container'>
       <div className='productos-container'>
@@ -239,7 +262,7 @@ export default function Punto_venta() {
             placeholder="Buscar productos"
             inputProps={{ 'aria-label': 'search products' }}
           />
-          <IconButton type="button" sx={{ p: '10px' }} aria-label="search">
+          <IconButton type="button" sx={{ p: '10px' }} aria-label="search" onClick={() => setOpenModalGenericProduct(true)}>
             <AddIcon />
           </IconButton>
           <IconButton type="button" onClick={() => setIsOpenModalLector(true)}><QrCodeScanner /></IconButton>
@@ -280,6 +303,46 @@ export default function Punto_venta() {
       <div className='detalles-container'>
         <DetallesCompra productosSelected={productosSelected} setProductosSelected={setProductosSelected} realizarPago={realizarPago} />
       </div>
+
+        {/* Agregar productos */}
+        <ModalProductos open={openModalGenericProduct} handleAgregar={agregarGenerico} setOpen={setOpenModalGenericProduct} textAction='Agregar'>
+
+            <DialogTitle>Agregar producto generico</DialogTitle>
+            <DialogContent>
+                <TextField
+                    autoFocus
+                    required
+                    margin="dense"
+                    label="Nombre producto"
+                    type="text"
+                    value={productoGenerico.nombre}
+                    onChange={e => cambiarPropiedadesProductoGenerico(e.target.value, "nombre")}
+                    fullWidth
+                    variant="standard"
+                />
+                <TextField
+                    required
+                    margin="dense"
+                    label="Precio producto"
+                    type="number"
+                    value={productoGenerico.precio}
+                    onChange={e => cambiarPropiedadesProductoGenerico(parseFloat(e.target.value), "precio")}
+                    fullWidth
+                    variant="standard"
+                />
+
+                <TextField
+                    margin="dense"
+                    label="Cantidad producto"
+                    type="number"
+                    value={productoGenerico.cantidad}
+                    onChange={e => cambiarPropiedadesProductoGenerico(parseInt(e.target.value), "cantidad")}
+                    fullWidth
+                    variant="standard"
+                />
+                
+            </DialogContent>
+        </ModalProductos>
 
       <LectorBarras open={isOpenModalLector} setOpen={setIsOpenModalLector} getCode={getCodigoBarras}/>
     </div>
