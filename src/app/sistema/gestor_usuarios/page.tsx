@@ -14,6 +14,9 @@ import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import InputLabel from '@mui/material/InputLabel';
 import FormControl from '@mui/material/FormControl';
+import { catchError } from '@/utils/catchErrors';
+import ErrorAlert from '@/alets/Error';
+import SuccsessAlert from '@/alets/Success';
 
 export default function GestorUsuarios() {
 
@@ -26,15 +29,26 @@ export default function GestorUsuarios() {
     const [openDeleteUsers, setOpenDeleteUsers] = useState(false)
     const [openUpdateUsers, setOpenUpdateUsers] = useState(false)
 
+    const [openErrorAlert, setOpenErrorAlert] = useState(false)
+    const [openSuccessAlert, setOpenSuccessAlert] = useState(false)
+
+    const [mensajeError, setMensajeError] = useState("")
+    const [mensajeSuccsess, setMensajeSuccsess] = useState("")
+
     useEffect(() => {
 
-        getTiposUsuarios().then(tipos => {
-            setTiposUsuario(tipos)
-        })
+        const initInformacion = async () => {
 
-        getUsuarios().then(data => {
-            setUsuarios(data)
-        })
+            let [error, usuarios] = await catchError<Usuario[]>(() => getUsuarios())
+            let [error2, tipos] = await catchError<TipoUsuario[]>(() => getTiposUsuarios())
+
+            if(error || error2) console.error(`Error getUsuarios: ${error} ::: Error getTiposUsuarios: ${error2}`)
+            
+            setUsuarios(usuarios)
+            setTiposUsuario(tipos)
+        }
+
+        initInformacion()
     }, [])
 
     const changeUser = (name: string, toChange: keyof Usuario) => {
@@ -61,11 +75,14 @@ export default function GestorUsuarios() {
     }
 
     const handleAddUsuario = () => {
+
+        nuevoUsuario.typo_valor = tiposUsuario?.find(el => el.id == nuevoUsuario.typo_identificador)?.typo ?? ""
+
         addUsuario(nuevoUsuario).then(registro => {
             nuevoUsuario.id = registro.id
-            setUsuarios(users => {
-                return [...users, {...nuevoUsuario, typo: tiposUsuario?.find(el => el.id == parseInt(nuevoUsuario.typo))?.typo || ''}]
-            })
+            setUsuarios(users => [...users, nuevoUsuario])
+            setMensajeSuccsess(`Se agrego a ${nuevoUsuario.usuario} correctamente`)
+            setOpenSuccessAlert(true)
         })
 
         setOpenAddUsers(false)
@@ -78,6 +95,9 @@ export default function GestorUsuarios() {
 
         deleteUsuario(usuario.id).then(() => {
             setUsuarios(usuarios.filter(user => user.id != usuario.id))
+
+            setMensajeSuccsess(`Se elimino a ${usuario.usuario} correctamente`)
+            setOpenSuccessAlert(true)
         })
         
         setOpenDeleteUsers(false)
@@ -102,6 +122,9 @@ export default function GestorUsuarios() {
                 })
             })
     
+            setMensajeSuccsess(`Se actualizo un ${usuario.usuario} correctamente`)
+            setOpenSuccessAlert(true)
+
             setUsuario(undefined)
         })
         
@@ -119,7 +142,7 @@ export default function GestorUsuarios() {
                         <div className='max-h-[90%] overflow-y-auto' key={i}>
                             <ListItem component="div" disablePadding>
                                 <ListItemButton onClick={() => setUsuario(usuario)}>
-                                    <ListItemText primary={`${usuario.usuario} - ${usuario.typo}`} />
+                                    <ListItemText primary={`${usuario.usuario} - ${usuario.typo_valor}`} />
                                 </ListItemButton>
                             </ListItem>
                         </div>
@@ -172,13 +195,13 @@ export default function GestorUsuarios() {
                         onChange={e => changeNuevoUsuario(e.target.value.trim().toUpperCase(), 'usuario')}
                     />
                     <FormControl fullWidth variant="standard">
-                        <InputLabel id="nivel-trabajador">Typo de producto</InputLabel>
+                        <InputLabel id="nivel-trabajador">Roll de empleo</InputLabel>
                         <Select
                             labelId="nivel-trabajador"
                             id="nivel-trabajador-select"
-                            label="Typo de producto"
-                            value={nuevoUsuario?.typo ?? ''}
-                            onChange={e => changeNuevoUsuario(e.target.value, 'typo')}
+                            label="Roll de empleo"
+                            value={nuevoUsuario?.typo_identificador}
+                            onChange={e => changeNuevoUsuario(e.target.value.toString(), 'typo_identificador')}
                         >
                             {tiposUsuario?.map(tipo => (
                                 <MenuItem key={tipo.id} value={tipo.id}>{tipo.typo}</MenuItem>
@@ -199,15 +222,18 @@ export default function GestorUsuarios() {
 
             <Modal titulo={`Eliminar a ${usuario?.usuario}`} open={openDeleteUsers} setOpen={setOpenDeleteUsers} textoBotonConfirmar='Eliminar' handleConfirmar={handleDeleteUsuario}>
                 <>
-                    <p>Una ves eliminado se perdera el {usuario?.typo} permanentemente</p>
+                    <p>Una ves eliminado se perdera el {usuario?.typo_valor} permanentemente</p>
                 </>
             </Modal>
 
             <Modal titulo={`Actualizar ${usuario?.usuario}`} open={openUpdateUsers} setOpen={setOpenUpdateUsers} textoBotonConfirmar='Actualizar' handleConfirmar={handleUpdateUsuario}>
                 <>
-                    <p>¿Desea actualizar al {usuario?.typo}?</p>
+                    <p>¿Desea actualizar al {usuario?.typo_valor}?</p>
                 </>
             </Modal>
+
+            <ErrorAlert open={openErrorAlert} setOpen={setOpenErrorAlert} mensage={mensajeError} />
+            <SuccsessAlert open={openSuccessAlert} setOpen={setOpenSuccessAlert} mensage={mensajeSuccsess} />
         </>
     )
 }

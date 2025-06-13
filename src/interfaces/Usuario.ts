@@ -1,7 +1,8 @@
 export interface Usuario {
     id?: number
     usuario: string
-    typo: string
+    typo_valor: string
+    typo_identificador: number
     password?: string
 }
 
