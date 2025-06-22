@@ -13,18 +13,23 @@ import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import { Autenticacion } from '@/request/Autenticacion';
 import CircularProgress from "@mui/material/CircularProgress";
 import ErrorAlert from '@/alets/Error';
-
 import "../styles/login.css"
+import { catchError } from '@/utils/catchErrors';
+import { Usuario } from '@/interfaces/Usuario';
+import { UsuarioLogeado } from '@/atom/usuarioAtom';
+import { useAtom } from 'jotai';
 
 export default function Home() {
 
   const router = useRouter()
   const [showPassword, setShowPassword] = useState(false)
-  const [usuario, setUsuario] = useState('')
+  const [nombre, setNombre] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [errorOpen, setErrorOpen] = useState(false)
+  const [messageError, setMessageError] = useState('')
 
+  const [,setUsuarioLogeado] = useAtom(UsuarioLogeado)
 
   const handleClickShowPassword = () => setShowPassword((show) => !show)
 
@@ -33,19 +38,22 @@ export default function Home() {
     handleAutenticate()
   }
 
-  const handleAutenticate = () => {
+  const handleAutenticate = async () => {
     setLoading(true)
     
-    Autenticacion(usuario, password)
-    .then(() => {
-      setLoading(false)
-      router.push("/sistema/punto_venta")
-    })
-    .catch((err) => {
-      console.log(err)
+    const [error, data] = await catchError<Usuario>(() => Autenticacion(nombre, password))
+
+    if (error) {
+      setMessageError(error)
       setLoading(false)
       setErrorOpen(true)
-    })
+      return
+    }
+
+    setUsuarioLogeado(data)
+
+    setLoading(false)
+    router.push("/sistema/punto_venta")
   }
 
   return (
@@ -54,8 +62,8 @@ export default function Home() {
         <AccountCircle sx={{ fontSize: 100, color: '#1976d2' }} />
         <TextField
           label="Usuario"
-          value={usuario}
-          onChange={e => setUsuario(e.target.value.trim().toUpperCase())}
+          value={nombre}
+          onChange={e => setNombre(e.target.value.trim().toUpperCase())}
           fullWidth={true}
           variant="outlined"
           slotProps={{
@@ -105,7 +113,7 @@ export default function Home() {
         </Button>
       </form>
 
-      <ErrorAlert mensage='Nombre o contraseña incorrectas' open={errorOpen} setOpen={setErrorOpen}/>
+      <ErrorAlert mensage={messageError} open={errorOpen} setOpen={setErrorOpen}/>
     </div>
   );
 }

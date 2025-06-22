@@ -15,12 +15,18 @@ import { useRouter } from 'next/navigation'
 import ModalProductos from './ModalProductos'
 import '@/styles/header.css'
 import { DialogTitle } from '@mui/material'
+import { UsuarioLogeado } from '@/atom/usuarioAtom'
+import { useAtom } from 'jotai';
+import { Usuario } from '@/interfaces/Usuario'
+
 
 export default function Header() {
-
+  
   const [state, setState] = useState(false)
   const [openModal, setOpenModal] = useState(false)
   const router = useRouter()
+
+  const [,setUsuario] = useAtom(UsuarioLogeado)
 
   const toggleDrawer = (open: boolean) => {
     setState(open);
@@ -32,6 +38,7 @@ export default function Header() {
 
   const cerrar = () => {
     cerrarSesion().then(() => {
+      setUsuario({} as Usuario)
       router.push("/")
     })
   }

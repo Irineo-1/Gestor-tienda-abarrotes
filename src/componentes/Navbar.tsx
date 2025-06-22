@@ -4,11 +4,13 @@ import '@/styles/navbar.css'
 import { Box, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 import { useAtom } from 'jotai'
 import { unidadMedidaAtom } from '@/atom/unidadMedidaAtom'
+import { UsuarioLogeado } from '@/atom/usuarioAtom';
 import { useEffect } from 'react';
 
 export default function Navbar() {
 
     const [unidadMedida, setUnidadMedida] = useAtom(unidadMedidaAtom)
+    const [usuario] = useAtom(UsuarioLogeado)
 
     const handleChangeUnidadMedida = (unidad: "gm" | "kg") => {
         setUnidadMedida(unidad)
@@ -29,8 +31,12 @@ export default function Navbar() {
                 <ul className="w-full">
                     <li className='every-item'><Link href="/sistema/punto_venta">Caja</Link></li>
                     <li className='every-item'><Link href="/sistema/ventas">Ventas</Link></li>
-                    <li className='every-item'><Link href="/sistema/inventario">Inventario</Link></li>
-                    <li className='every-item'><Link href="/sistema/gestor_usuarios">Gestion de usuarios</Link></li>
+                    {usuario.typo_valor == 'administrador' &&
+                        <>
+                            <li className='every-item'><Link href="/sistema/inventario">Inventario</Link></li>
+                            <li className='every-item'><Link href="/sistema/gestor_usuarios">Gestion de usuarios</Link></li>
+                        </>
+                    }
                     <li>
                         <Box sx={{marginX: "1rem", marginTop: "10px"}}>
                             <FormControl

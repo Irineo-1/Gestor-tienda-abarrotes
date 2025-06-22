@@ -81,7 +81,7 @@ export default function GestorUsuarios() {
         addUsuario(nuevoUsuario).then(registro => {
             nuevoUsuario.id = registro.id
             setUsuarios(users => [...users, nuevoUsuario])
-            setMensajeSuccsess(`Se agrego a ${nuevoUsuario.usuario} correctamente`)
+            setMensajeSuccsess(`Se agrego a ${nuevoUsuario.nombre} correctamente`)
             setOpenSuccessAlert(true)
         })
 
@@ -96,7 +96,7 @@ export default function GestorUsuarios() {
         deleteUsuario(usuario.id).then(() => {
             setUsuarios(usuarios.filter(user => user.id != usuario.id))
 
-            setMensajeSuccsess(`Se elimino a ${usuario.usuario} correctamente`)
+            setMensajeSuccsess(`Se elimino a ${usuario.nombre} correctamente`)
             setOpenSuccessAlert(true)
         })
         
@@ -115,14 +115,14 @@ export default function GestorUsuarios() {
                     if(user.id == usuario?.id) {
                         return {
                             ...user,
-                            usuario: usuario?.usuario
+                            usuario: usuario?.nombre
                         }
                     }
                     return user
                 })
             })
     
-            setMensajeSuccsess(`Se actualizo un ${usuario.usuario} correctamente`)
+            setMensajeSuccsess(`Se actualizo un ${usuario.nombre} correctamente`)
             setOpenSuccessAlert(true)
 
             setUsuario(undefined)
@@ -142,7 +142,7 @@ export default function GestorUsuarios() {
                         <div className='max-h-[90%] overflow-y-auto' key={i}>
                             <ListItem component="div" disablePadding>
                                 <ListItemButton onClick={() => setUsuario(usuario)}>
-                                    <ListItemText primary={`${usuario.usuario} - ${usuario.typo_valor}`} />
+                                    <ListItemText primary={`${usuario.nombre} - ${usuario.typo_valor}`} />
                                 </ListItemButton>
                             </ListItem>
                         </div>
@@ -160,8 +160,8 @@ export default function GestorUsuarios() {
                                         variant="standard" 
                                         size="small" 
                                         fullWidth 
-                                        value={usuario?.usuario ?? ""} 
-                                        onChange={e => changeUser(e.target.value.trim().toUpperCase(), 'usuario')}
+                                        value={usuario?.nombre ?? ""} 
+                                        onChange={e => changeUser(e.target.value.trim().toUpperCase(), 'nombre')}
                                     />
                                     <TextField 
                                         id="password" 
@@ -191,8 +191,8 @@ export default function GestorUsuarios() {
                         variant="standard" 
                         size="small" 
                         fullWidth 
-                        value={nuevoUsuario?.usuario ?? ""} 
-                        onChange={e => changeNuevoUsuario(e.target.value.trim().toUpperCase(), 'usuario')}
+                        value={nuevoUsuario?.nombre ?? ""} 
+                        onChange={e => changeNuevoUsuario(e.target.value.trim().toUpperCase(), 'nombre')}
                     />
                     <FormControl fullWidth variant="standard">
                         <InputLabel id="nivel-trabajador">Roll de empleo</InputLabel>
@@ -220,13 +220,13 @@ export default function GestorUsuarios() {
                 </>
             </Modal>
 
-            <Modal titulo={`Eliminar a ${usuario?.usuario}`} open={openDeleteUsers} setOpen={setOpenDeleteUsers} textoBotonConfirmar='Eliminar' handleConfirmar={handleDeleteUsuario}>
+            <Modal titulo={`Eliminar a ${usuario?.nombre}`} open={openDeleteUsers} setOpen={setOpenDeleteUsers} textoBotonConfirmar='Eliminar' handleConfirmar={handleDeleteUsuario}>
                 <>
                     <p>Una ves eliminado se perdera el {usuario?.typo_valor} permanentemente</p>
                 </>
             </Modal>
 
-            <Modal titulo={`Actualizar ${usuario?.usuario}`} open={openUpdateUsers} setOpen={setOpenUpdateUsers} textoBotonConfirmar='Actualizar' handleConfirmar={handleUpdateUsuario}>
+            <Modal titulo={`Actualizar ${usuario?.nombre}`} open={openUpdateUsers} setOpen={setOpenUpdateUsers} textoBotonConfirmar='Actualizar' handleConfirmar={handleUpdateUsuario}>
                 <>
                     <p>¿Desea actualizar al {usuario?.typo_valor}?</p>
                 </>

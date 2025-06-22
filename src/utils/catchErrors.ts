@@ -5,6 +5,7 @@ export const catchError = async <T>(fun: () => Promise<T>): Promise<[error: stri
         return ["", response];
     }
     catch(err) {
-        return [err as string, null as T];
+        const errorMessage = err instanceof Error ? err.message : String(err);
+        return [errorMessage, null as T];
     }
 }
