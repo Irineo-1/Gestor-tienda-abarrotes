@@ -52,6 +52,7 @@ export default function DetallesCompra({productosSelected, setProductosSelected,
     })
 
     setPago(0)
+    setCambio(0)
     setIsOpenForm(false)
   }
 
